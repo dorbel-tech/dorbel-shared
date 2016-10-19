@@ -11,7 +11,8 @@ function getLogger(callingModule) {
 
   let loggerSettings = { 
     name: callingFileName || 'general', 
-    level: config.get('LOG_LEVEL')      
+    level: config.get('LOG_LEVEL'),
+    streams: [] 
   };
 
   loggerSettings.streams.push(process.stdout);
@@ -19,7 +20,7 @@ function getLogger(callingModule) {
   if (config.get('LOGENTRIES_TOKEN')) {
     loggerSettings.streams.push(Logger.bunyanStream({ token: config.get('LOGENTRIES_TOKEN') }));
   }
-  
+
   return bunyan.createLogger(loggerSettings);
 }
 

@@ -1,3 +1,5 @@
+require('@risingstack/trace'); // Application monitoring
+
 module.exports = {
   config: require('./config'),
   logger: require('./logger'),

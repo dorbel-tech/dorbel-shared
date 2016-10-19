@@ -1,3 +1,4 @@
+require('newrelic');
 require('@risingstack/trace'); // Application monitoring
 
 module.exports = {

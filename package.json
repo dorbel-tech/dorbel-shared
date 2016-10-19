@@ -4,6 +4,7 @@
   "description": "Shared module for dorbel services",
   "main": "src/index.js",
   "scripts": {
+    "release": "scripts/release.sh",
     "test": "mocha test/before-tests.js **/*.spec.js"
   },
   "author": "",

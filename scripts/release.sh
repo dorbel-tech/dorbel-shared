@@ -22,5 +22,4 @@ npm version $VERSION -m 'version bump as a result of new version release'
 git add .
 git commit -m 'new version ${VERSION} release'
 git tag -a $VERSION -m 'new version ${VERSION} release'
-git push
-git push origin $VERSION
+git push --all

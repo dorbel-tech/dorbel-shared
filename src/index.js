@@ -1,4 +1,4 @@
-require('newrelic');
+process.env.NEW_RELIC_NO_CONFIG_FILE = 'True'; require('newrelic');
 require('@risingstack/trace'); // Application monitoring
 
 module.exports = {

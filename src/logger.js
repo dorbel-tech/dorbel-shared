@@ -14,10 +14,12 @@ function getLogger(callingModule) {
     level: config.get('LOG_LEVEL')      
   };
 
-  if (config.get('LOGENTRIES_TOKEN')) {
-    loggerSettings.streams = [ Logger.bunyanStream({ token: config.get('LOGENTRIES_TOKEN') }) ];
-  }
+  loggerSettings.streams.push(process.stdout);
 
+  if (config.get('LOGENTRIES_TOKEN')) {
+    loggerSettings.streams.push(Logger.bunyanStream({ token: config.get('LOGENTRIES_TOKEN') }));
+  }
+  
   return bunyan.createLogger(loggerSettings);
 }
 

@@ -20,6 +20,6 @@ npm version $VERSION -m 'version bump as a result of new version release' --forc
 
 # Release application
 git add .
-git commit -m 'new version ${VERSION} release'
-git tag -a $VERSION -m 'new version ${VERSION} release'
+git commit -m 'new version release'
+git tag -a $VERSION -m 'new version release'
 git push --all --follow-tags

@@ -16,7 +16,7 @@ fi
 echo "Starting release of ${VERSION}."
 
 # Change version in all npm package files
-npm version $VERSION -m 'version bump as a result of new version release' --force
+npm version $VERSION --force
 
 # Release application
 git add .

@@ -16,10 +16,7 @@ fi
 echo "Starting release of ${VERSION}."
 
 # Change version in all npm package files
-npm version $VERSION --force
+npm version $VERSION --force --git-tag-version
 
 # Release application
-git add .
-git commit -m 'new version release'
-git tag -a $VERSION -m 'new version release'
 git push --all --follow-tags

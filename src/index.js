@@ -1,5 +1,8 @@
-// NewRelic init
-if (process.env.NEW_RELIC_ENABLED) { require('newrelic'); }
+// NewRelic init 
+if (process.env.NEW_RELIC_ENABLED) { 
+  process.env.NEW_RELIC_NO_CONFIG_FILE = 'True';
+  require('newrelic'); 
+}
 
 module.exports = {
   config: require('./config'),

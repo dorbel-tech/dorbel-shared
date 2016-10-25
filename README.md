@@ -30,10 +30,16 @@ shared.config.get('CONFIG_KEY_NAME');
 
 ## Koa middleware
 
-### Request logger
+### Error handler
 ```js
 const app = koa();
-// Should come first so it logs all requests and times the entire flow
+// Should come first so it catches all error
+app.use(shared.middleware.errorHandler());
+```
+
+### Request logger
+```js
+// Should come right after error handler so it logs all requests and times the entire flow
 app.use(shared.middleware.requestLogger());
 ```
 
@@ -46,5 +52,7 @@ fleekRouter(app, {
   middleware: [ shared.middleware.swaggerModelValidator() ]
 });
 ```
+
+
 ## How to test
 - Run unit tests using ``npm test``

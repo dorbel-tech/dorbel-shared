@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "release": "scripts/release.sh",
-    "test": "mocha test/before-tests.js **/*.spec.js"
+    "test": "mocha test/before-tests.js test/**/*.spec.js",
+    "watch": "npm test -- -w"
   },
   "author": "",
   "license": "ISC",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "co-mocha": "^1.1.3",
     "hamjest": "^2.13.0",
-    "mocha": "^3.1.0"
+    "mocha": "^3.1.0",
+    "mock-fs": "^3.11.0"
   }
 }

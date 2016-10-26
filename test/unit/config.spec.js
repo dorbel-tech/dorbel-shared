@@ -33,6 +33,10 @@ describe('config', function () {
     __.assertThat(config.get('ENV_KEY'), __.equalTo(envConfig.ENV_KEY));
   });
 
+  it('should read values from env', () => {
+    __.assertThat(config.get('KEY3'), __.equalTo(envConfig.KEY3));
+  });
+
   it('should put values into process.env', () => {
     __.assertThat(process.env.KEY2, __.equalTo(perEnvConfigFile.KEY2));
   });

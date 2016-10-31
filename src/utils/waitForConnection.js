@@ -1,5 +1,6 @@
 'use strict';
 const net = require('net');
+const url = require('url');
 const logger = require('../logger').getLogger(module);
 
 const RETRY_PERIOD_MS = 3000;
@@ -34,7 +35,8 @@ function connect(params) {
     return net.connect(params.port, params.host);
   }
   else if (params.path) {
-    return net.connect(params.path);
+    let parsedPath = url.parse(params.path);
+    return net.connect(parsedPath.port, parsedPath.hostname);
   }
   else {
     throw new Error('No connection params specificied');

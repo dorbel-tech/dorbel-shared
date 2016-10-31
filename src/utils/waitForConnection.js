@@ -1,6 +1,6 @@
 'use strict';
 const net = require('net');
-const logger = require('./logger').getLogger(module);
+const logger = require('../logger').getLogger(module);
 
 const RETRY_PERIOD_MS = 3000;
 const DEFAULT_RETRIES = 6;

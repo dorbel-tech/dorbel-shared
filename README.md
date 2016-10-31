@@ -59,7 +59,9 @@ fleekRouter(app, {
 - Returns a promise that will be resolved when host is available
 - Rejected after all the retries have been exhausted
 ```
-shared.utils.waitForConnection(host, port, [retries=6]);
+shared.utils.waitForConnection({ host: 'http://www.api.com', port: 8080 }, [retries=6]);
+// or
+shared.utils.waitForConnection({ path: 'http://www.api.com:8080' }, [retries=6]);
 ```
 
 ## How to test

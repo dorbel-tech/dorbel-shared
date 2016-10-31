@@ -53,6 +53,14 @@ fleekRouter(app, {
 });
 ```
 
+## Utils
+
+### waitForConnection
+- Returns a promise that will be resolved when host is available
+- Rejected after all the retries have been exhausted
+```
+shared.utils.waitForConnection(host, port, [retries=6]);
+```
 
 ## How to test
 - Run unit tests using ``npm test``

@@ -1,12 +1,24 @@
 {
+  "parser": "babel-eslint",
+  "plugins": [
+    "flowtype"
+  ],  
   "env": {
     "es6": true,
     "node": true,
-    "mocha": true
+    "mocha": true,
+    "browser": true,
+    "jasmine": true    
   },
   "extends": [
-    "eslint:recommended"
+    "eslint:recommended",
+    "plugin:flowtype/recommended"
   ],
+  "settings": {
+    "flowtype": {
+      "onlyFilesWithFlowAnnotation": false
+    }
+  },  
   "rules": {
     "indent": [
       "error",
@@ -30,6 +42,7 @@
     "curly": [
       "error",
       "all"
-    ]
+    ],
+    "require-yield": 0
   }
 }

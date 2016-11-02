@@ -19,4 +19,4 @@ echo "Starting release of ${VERSION}."
 npm version $VERSION --force --git-tag-version
 
 # Release application
-git push --all --follow-tags
+git push master --follow-tags

@@ -1,18 +1,4 @@
 {
-  "extends": [
-    "eslint:recommended",
-    "./eslint.shared.json"
-  ],
-  "env": {
-    "es6": true,
-    "node": true,
-    "mocha": true
-  },
-  "settings": {
-    "flowtype": {
-      "onlyFilesWithFlowAnnotation": false
-    }
-  },  
   "rules": {
     "indent": [
       "error",

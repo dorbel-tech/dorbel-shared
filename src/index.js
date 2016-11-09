@@ -13,6 +13,7 @@ module.exports = {
     errorHandler: require('./koa-middleware/error-handler'),
   },
   utils: {
-    waitForConnection: require('./utils/waitForConnection')
+    waitForConnection: require('./utils/waitForConnection'),
+    notification: require('./utils/notification'),
   }
 };

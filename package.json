@@ -5,9 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "release": "scripts/release.sh",
-    "test": "npm run test:lint && npm run test:unit",
-    "test:lint": "eslint --ext .js -f table src",
+    "test": "npm run lint && npm run test:unit",
     "test:unit": "mocha test/before-tests.js test/**/*.spec.js",
+    "lint": "eslint --ext .js -f table src",
     "watch": "npm test -- -w"
   },
   "author": "",
@@ -18,6 +18,8 @@
     "lodash": "^4.16.3",
     "nconf": "^0.8.4",
     "newrelic": "1.31.0",
+    "sns.js": "1.0.2",
+    "sqs-consumer": "3.3.0",
     "swagger-model-validator": "^2.1.2"
   },
   "devDependencies": {

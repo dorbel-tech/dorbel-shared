@@ -7,4 +7,4 @@ echo "Starting release of ${VERSION}."
 npm version patch --force --git-tag-version
 
 # Release application
-git push origin master --follow-tags
+git push --follow-tags

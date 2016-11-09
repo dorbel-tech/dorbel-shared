@@ -1,6 +1,6 @@
 // Publishes messages to SNS and consumes them from SQS.
 'use strict';
-const config = require('./config');
+const config = require('../config');
 const logger = require('../logger').getLogger(module);
 const SNS = require('sns.js');
 const SQS = require('sqs-consumer');

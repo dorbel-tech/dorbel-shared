@@ -12,10 +12,7 @@ const eventType = {
   APARTMENT_RENTED: 'APARTMENT_RENTED'
 };
 
-/* Publish a single message to AWS SNS topic. https://github.com/matthewmueller/sns.js
- * Work example:  yield message.publish(notifications.eventType.APARTMENT_CREATED, 
- *                  { apartment_id: 1, user_uuid: '211312-4123123-5344-234234-2343' });
- */
+// Publish a single message to AWS SNS topic. https://github.com/matthewmueller/sns.js
 function* publish(eventType, dataPayload) {
   let message = {
     eventType,
@@ -27,13 +24,7 @@ function* publish(eventType, dataPayload) {
   return SNS.publish(topicArn, message);
 }
 
-/* Consume messages from AWS SQS queue which is subscriber of AWS SNS. https://github.com/BBC/sqs-consumer
- * Work example: yield message.consume.start(function (message, done) {
- *                 logger.debug('Message content', message);
- *                 // do some work with `message`
- *                 done();
- *                }); 
- */
+// Consume messages from AWS SQS queue which is subscriber of AWS SNS topic. https://github.com/BBC/sqs-consumer
 function* start(handleMessage) {
   let consumer = SQS.create({
     queueUrl: config.get('NOTIFICATIONS_SQS_QUEUE_URN'),
@@ -46,7 +37,7 @@ function* start(handleMessage) {
 
   logger.debug('SQS consumer starting...');
   consumer.start();
-  
+
   return consumer;
 }
 

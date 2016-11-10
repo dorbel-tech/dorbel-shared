@@ -64,5 +64,24 @@ shared.utils.waitForConnection({ host: 'http://www.api.com', port: 8080 }, [retr
 shared.utils.waitForConnection({ path: 'http://www.api.com:8080' }, [retries=6]);
 ```
 
+### message
+- Allows to Publish a single message to AWS SNS topic:
+```
+yield messageBus.publish(notifications.eventType.APARTMENT_CREATED, { apartment_id: 1, user_uuid: '211312-4123123-5344-234234-2343' });
+```
+- Allows to consume messages from AWS SQS queue which is subscriber of AWS SNS topic.
+- Start queue consumer:
+```
+let consumer = yield messageBus.consume.start(function (message, done) {
+  logger.debug('Message content', message);
+  // do some work with `message`
+  done();
+}); 
+``` 
+- Stop queue consumer:
+```
+yield consumer.stop();
+``` 
+
 ## How to test
 - Run unit tests using ``npm test``

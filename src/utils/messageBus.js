@@ -13,7 +13,7 @@ const eventType = {
 };
 
 // Publish a single message to AWS SNS topic. https://github.com/matthewmueller/sns.js
-function* publish(eventType, dataPayload) {
+function publish(eventType, dataPayload) {
   let message = {
     eventType,
     dataPayload
@@ -25,7 +25,8 @@ function* publish(eventType, dataPayload) {
 }
 
 // Consume messages from AWS SQS queue which is subscriber of AWS SNS topic. https://github.com/BBC/sqs-consumer
-function* start(handleMessage) {
+// To stop consumer: consumer.stop();
+function start(handleMessage) {
   let consumer = SQS.create({
     queueUrl: config.get('NOTIFICATIONS_SQS_QUEUE_URN'),
     handleMessage
@@ -41,17 +42,10 @@ function* start(handleMessage) {
   return consumer;
 }
 
-// Stop AWS SQS consumer.
-function* stop(consumer) {
-  logger.debug('SQS consumer stopping...');
-  consumer.stop();
-}
-
 module.exports = {
   eventType,
   publish,
   consume: {
-    start,
-    stop
+    start
   }
 };

@@ -65,14 +65,14 @@ shared.utils.waitForConnection({ path: 'http://www.api.com:8080' }, [retries=6])
 ```
 
 ### message
-- Allows to Ppublish a single message to AWS SNS topic:
+- Allows to Publish a single message to AWS SNS topic:
 ```
-yield message.publish(notifications.eventType.APARTMENT_CREATED, { apartment_id: 1, user_uuid: '211312-4123123-5344-234234-2343' });
+yield messageBus.publish(notifications.eventType.APARTMENT_CREATED, { apartment_id: 1, user_uuid: '211312-4123123-5344-234234-2343' });
 ```
 - Allows to consume messages from AWS SQS queue which is subscriber of AWS SNS topic.
 - Start queue consumer:
 ```
-let consumer = yield message.consume.start(function (message, done) {
+let consumer = yield messageBus.consume.start(function (message, done) {
   logger.debug('Message content', message);
   // do some work with `message`
   done();
@@ -80,7 +80,7 @@ let consumer = yield message.consume.start(function (message, done) {
 ``` 
 - Stop queue consumer:
 ```
-yield message.consume.stop(consumer);
+yield consumer.stop();
 ``` 
 
 ## How to test

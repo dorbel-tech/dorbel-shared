@@ -13,7 +13,7 @@ const eventType = {
 };
 
 /* Publish a single message to AWS SNS topic. https://github.com/matthewmueller/sns.js
- * Work example:  yield notifications.publish(notifications.eventType.APARTMENT_CREATED, 
+ * Work example:  yield message.publish(notifications.eventType.APARTMENT_CREATED, 
  *                  { apartment_id: 1, user_uuid: '211312-4123123-5344-234234-2343' });
  */
 function* publish(eventType, dataPayload) {
@@ -28,28 +28,39 @@ function* publish(eventType, dataPayload) {
 }
 
 /* Consume messages from AWS SQS queue which is subscriber of AWS SNS. https://github.com/BBC/sqs-consumer
- * Work example: yield notifications.receive(function (message, done) {
+ * Work example: yield message.consume.start(function (message, done) {
  *                 logger.debug('Message content', message);
  *                 // do some work with `message`
  *                 done();
  *                }); 
  */
-function* consume(handleMessage) {
-  var app = SQS.create({
+function* start(handleMessage) {
+  let consumer = SQS.create({
     queueUrl: config.get('NOTIFICATIONS_SQS_QUEUE_URN'),
     handleMessage
   });
 
-  app.on('error', function (err) {
+  consumer.on('error', function (err) {
     logger.err(err);
   });
 
-  logger.debug('SQS consumer to long poll messages starting');
-  app.start();
+  logger.debug('SQS consumer starting...');
+  consumer.start();
+  
+  return consumer;
+}
+
+// Stop AWS SQS consumer.
+function* stop(consumer) {
+  logger.debug('SQS consumer stopping...');
+  consumer.stop();
 }
 
 module.exports = {
   eventType,
   publish,
-  consume
+  consume: {
+    start,
+    stop
+  }
 };

@@ -14,6 +14,6 @@ module.exports = {
   },
   utils: {
     waitForConnection: require('./utils/waitForConnection'),
-    notification: require('./utils/notification'),
+    notification: require('./utils/message'),
   }
 };

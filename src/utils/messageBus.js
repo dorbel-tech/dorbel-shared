@@ -28,7 +28,7 @@ function publish(eventType, dataPayload) {
 // To stop consumer: consumer.stop();
 function start(handleMessage) {
   let consumer = SQS.create({
-    queueUrl: config.get('NOTIFICATIONS_SQS_QUEUE_URN'),
+    queueUrl: config.get('NOTIFICATIONS_SQS_QUEUE_URL'),
     handleMessage
   });
 

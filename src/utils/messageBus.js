@@ -1,6 +1,5 @@
 // Publishes messages to SNS and consumes them from SQS.
 'use strict';
-const config = require('../config');
 const logger = require('../logger').getLogger(module);
 const SNS = require('sns.js');
 const SQS = require('sqs-consumer');
@@ -13,22 +12,21 @@ const eventType = {
 };
 
 // Publish a single message to AWS SNS topic. https://github.com/matthewmueller/sns.js
-function publish(eventType, dataPayload) {
+function publish(snsTopicArn, eventType, dataPayload) {
   let message = {
     eventType,
     dataPayload
   };
 
   logger.debug('Publishing message', message);
-  const topicArn = config.get('NOTIFICATIONS_SNS_TOPIC_ARN');
-  return SNS.publish(topicArn, message);
+  return SNS.publish(snsTopicArn, message);
 }
 
 // Consume messages from AWS SQS queue which is subscriber of AWS SNS topic. https://github.com/BBC/sqs-consumer
 // To stop consumer: consumer.stop();
-function start(handleMessage) {
+function start(sqsQueueUrl, handleMessage) {
   let consumer = SQS.create({
-    queueUrl: config.get('NOTIFICATIONS_SQS_QUEUE_URL'),
+    queueUrl: sqsQueueUrl,
     handleMessage
   });
 

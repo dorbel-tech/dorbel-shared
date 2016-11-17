@@ -31,7 +31,7 @@ function start(sqsQueueUrl, handleMessage) {
   });
 
   consumer.on('error', function (err) {
-    logger.err(err);
+    logger.error(err);
   });
 
   logger.debug('SQS consumer starting...');

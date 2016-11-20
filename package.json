@@ -19,7 +19,7 @@
     "nconf": "^0.8.4",
     "newrelic": "1.31.0",
     "sns.js": "1.0.2",
-    "sqs-consumer": "3.3.0",
+    "sqs-consumer": "3.4.0",
     "swagger-model-validator": "^2.1.2"
   },
   "devDependencies": {

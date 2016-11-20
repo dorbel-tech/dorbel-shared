@@ -14,6 +14,7 @@ const eventType = {
 // Publish a single message to AWS SNS topic. https://github.com/matthewmueller/sns.js
 function publish(snsTopicArn, eventType, dataPayload) {
   let message = {
+    environemnt: process.env.NODE_ENV,
     eventType,
     dataPayload
   };

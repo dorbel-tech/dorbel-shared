@@ -1,3 +1,5 @@
+// Error handling middleware for koa server.
+// Reports error to logger.
 'use strict';
 function getMiddleWare() {
   const logger = require('../logger').getLogger(module);

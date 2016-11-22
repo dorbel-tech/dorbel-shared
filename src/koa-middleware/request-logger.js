@@ -1,3 +1,5 @@
+// All request logging middleware for koa server.
+// Reports all logs to logger.
 'use strict';
 function getMiddleWare() {
   const logger = require('../logger').getLogger(module);

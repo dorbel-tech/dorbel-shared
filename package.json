@@ -13,20 +13,20 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bunyan": "^1.8.1",
+    "bunyan": "~1.8.1",
     "le_node": "1.6.7",
-    "lodash": "^4.16.3",
-    "nconf": "^0.8.4",
+    "lodash": "~4.16.3",
+    "nconf": "~0.8.4",
     "newrelic": "1.31.0",
     "sns.js": "1.0.2",
     "sqs-consumer": "3.4.0",
-    "swagger-model-validator": "^2.1.2"
+    "swagger-model-validator": "~2.1.2"
   },
   "devDependencies": {
-    "co-mocha": "^1.1.3",
-    "eslint": "^3.7.1",
-    "hamjest": "^2.13.0",
-    "mocha": "^3.1.0",
-    "mock-fs": "^3.11.0"
+    "co-mocha": "~1.1.3",
+    "eslint": "~3.7.1",
+    "hamjest": "~2.13.0",
+    "mocha": "~3.1.0",
+    "mock-fs": "~3.11.0"
   }
 }

@@ -1,3 +1,4 @@
+// Swagger model validator.
 'use strict';
 var Validator = require('swagger-model-validator');
 const _ = require('lodash');

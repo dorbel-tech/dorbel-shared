@@ -1,0 +1,21 @@
+machine:
+  environment:
+    NODE_ENV: ci
+  pre:
+    - mkdir ~/.yarn-cache
+  node:
+    version: stable
+
+dependencies:
+  pre:
+    # Install Yarn
+     - curl -o- -L https://yarnpkg.com/install.sh | bash
+  cache_directories:
+    - ~/.yarn-cache
+  override:
+    - yarn install
+
+test:
+  override:
+    - yarn run lint 
+    - yarn test

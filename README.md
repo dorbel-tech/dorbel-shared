@@ -7,7 +7,7 @@
 "dependencies": {
     "dorbel-shared": "file:../dorbel-shared",
 ```
-- Then run ``npm install``
+- Then run ``yarn install``
 
 ## How to use
 ```js
@@ -20,7 +20,7 @@ const logger = shared.logger.getLogger(module);
 // Messages are constant (no variables)
 logger.info({ userId: user.id, apartmentId: apartment.id }, 'added apartment');
 ```
-- bunyan logs in JSON format. For human readable logs start your application using ``npm start | bunyan``
+- bunyan logs in JSON format. For human readable logs start your application using ``yarn start | bunyan``
 ### Config
 ```js
 // Config folder should hold json files with environment names (e.g. development.json)
@@ -84,4 +84,4 @@ yield consumer.stop();
 ``` 
 
 ## How to test
-- Run unit tests using ``npm test``
+- Run unit tests using ``yarn test``

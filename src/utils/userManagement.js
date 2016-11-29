@@ -7,7 +7,7 @@ const ManagementClient = require('auth0').ManagementClient;
 const request = require('request-promise');
 
 function getUserDetails(uuid) {
-  getApiToken()
+  return getApiToken()
     .then(token => {
       return new ManagementClient({
         token: token,
@@ -15,15 +15,14 @@ function getUserDetails(uuid) {
       });
     })
     .then(auth0 => {
-      return auth0
-        .getUsers({
-          fields: 'name,email,phone', // User details field names to get from API.
-          q: 'app_metadata.dorbel_user_id: ' + uuid // Query to get users by app metadata dorbel user id.
-        })
-        .then(function (user) {
-          logger.debug(user);
-          return user;
-        });
+      return auth0.getUsers({
+        fields: 'name,email,phone', // User details field names to get from API.
+        q: 'app_metadata.dorbel_user_id: ' + uuid // Query to get users by app metadata dorbel user id.
+      });
+    })
+    .then(user => {
+      logger.debug(user);
+      return user;
     });
 }
 
@@ -45,8 +44,6 @@ function getApiToken() {
     .then(result => {
       logger.debug(result.body, 'API auth response body:');
       return result.body.access_token;
-    }).catch(function (err) {
-      logger.error(err, 'Failed to get API token');
     });
 }
 

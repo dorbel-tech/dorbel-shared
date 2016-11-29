@@ -5,10 +5,10 @@
   "main": "src/index.js",
   "scripts": {
     "release": "scripts/release.sh",
-    "test": "npm run lint && npm run test:unit",
+    "test": "yarn run test:unit",
     "test:unit": "mocha test/before-tests.js test/**/*.spec.js",
     "lint": "eslint --ext .js -f table src",
-    "watch": "npm test -- -w"
+    "watch": "yarn test -- -w"
   },
   "author": "",
   "license": "ISC",
@@ -27,6 +27,6 @@
     "eslint": "~3.7.1",
     "hamjest": "~2.13.0",
     "mocha": "~3.1.0",
-    "mock-fs": "~3.11.0"
+    "mock-fs": "^3.12.1"
   }
 }

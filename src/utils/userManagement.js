@@ -1,9 +1,8 @@
-'user strict';
 // Get user details from auth0 API. 
+'user strict';
 
-const shared = require('dorbel-shared');
-const config = shared.config;
-const logger = shared.logger.getLogger(module);
+const config = require('../config');
+const logger = require('../logger').getLogger(module);
 const ManagementClient = require('auth0').ManagementClient;
 const request = require('co-request');
 

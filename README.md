@@ -86,7 +86,7 @@ yield consumer.stop();
 ### userManagement
 - Allows to get user details object from auth0 API:
 ```
-let userDetails = co(userManagement.getUserDetails(message.dataPayload.uuid)).catch(err => logger.error(err));
+let userDetails = yield userManagement.getUserDetails(message.dataPayload.uuid);
 ```
 
 ## How to test

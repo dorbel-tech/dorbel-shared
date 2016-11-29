@@ -1,7 +1,9 @@
 'use strict';
 const nconf = require('nconf');
 const path = require('path');
+const EventEmitter = require('events');
 
+const changesEmitter = new EventEmitter();
 let config = loadConfig();
 
 function loadConfig() {
@@ -22,7 +24,9 @@ function setConfigFileFolder(folder) {
 
 function putValuesIntoProcessEnv(config) {
   for (let key in config) {
-    if (typeof config[key] === 'string' && !process.env[key]) {
+    if (typeof config[key] === 'string' && !process.env[key] && process.env[key] !== config[key]) {
+      // the values in process.env are used to track if config was actually changed 
+      changesEmitter.emit(key, { newValue: config[key], oldValue: process.env[key]});
       process.env[key] = config[key];
     }
   }
@@ -32,7 +36,12 @@ function get(key) {
   return config.get(key);
 }
 
+function onKeyChange(key, cb) {
+  changesEmitter.addListener(key, cb);
+}
+
 module.exports = {
   setConfigFileFolder,
-  get: get
+  get: get,
+  onKeyChange: onKeyChange
 };

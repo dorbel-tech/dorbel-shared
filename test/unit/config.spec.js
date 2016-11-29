@@ -2,12 +2,14 @@ describe('config', function () {
   const mockFs = require('mock-fs');
   const _ = require('lodash');
   const __ = require('hamjest');
-  var config;
+  const sinon = require('sinon');
+  let config;
 
   const configFolder = 'some/ConfigFolder';
   const commonConfigFile = { KEY1: 'coffee', SHARED_KEY: 'tea', ENV_KEY: 'water' };
   const perEnvConfigFile = { KEY2: 'vodka', SHARED_KEY: 'beer' };
   const envConfig = { KEY3: 'sprite', ENV_KEY: 'fanta' };
+  const changesHandler = sinon.spy();
 
   before(() => {
     _.extend(process.env, envConfig);
@@ -18,6 +20,7 @@ describe('config', function () {
       }
     });
     config = require('../../src').config;
+    config.onKeyChange('KEY2', changesHandler);
     config.setConfigFileFolder(configFolder);
   });
 
@@ -39,5 +42,11 @@ describe('config', function () {
 
   it('should put values into process.env', () => {
     __.assertThat(process.env.KEY2, __.equalTo(perEnvConfigFile.KEY2));
+  });
+
+  it('should update when key is changed', () => {
+    __.assertThat(changesHandler.callCount, __.equalTo(1));
+    __.assertThat(changesHandler.args[0][0].newValue, // first call & first argument 
+      __.equalTo(perEnvConfigFile.KEY2));
   });
 });

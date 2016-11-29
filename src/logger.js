@@ -3,6 +3,9 @@ const config = require('./config');
 const bunyan = require('bunyan');
 const Logger = require('le_node');
 
+const LOG_LEVEL = 'LOG_LEVEL';
+const childLoggers = [];
+
 function getLogger(callingModule) {
   let callingFileName;
   if (callingModule) {
@@ -11,15 +14,21 @@ function getLogger(callingModule) {
 
   let loggerSettings = { 
     name: callingFileName || 'general', 
-    level: config.get('LOG_LEVEL')      
+    level: config.get(LOG_LEVEL)      
   };
 
   if (config.get('LOGENTRIES_TOKEN')) {
     loggerSettings.streams = [ Logger.bunyanStream({ token: config.get('LOGENTRIES_TOKEN') }) ];
   }
 
-  return bunyan.createLogger(loggerSettings);
+  const logger = bunyan.createLogger(loggerSettings);
+  childLoggers.push(logger); 
+  return logger;
 }
+
+config.onKeyChange(LOG_LEVEL, change => {
+  childLoggers.forEach(logger => logger.level(change.newValue));
+});
 
 module.exports = {
   getLogger

@@ -11,12 +11,11 @@
     "flowtype": {
       "onlyFilesWithFlowAnnotation": false
     }
-  },  
+  },
   "rules": {
     "indent": [
       "error",
-      2,
-      {
+      2, {
         "SwitchCase": 1
       }
     ],
@@ -36,6 +35,10 @@
       "error",
       "all"
     ],
-    "require-yield": 0
+    "camelcase": ["error", {
+      "properties": "never"
+    }],
+    "require-yield": 0,
+    "eol-last": ["error", "always"]
   }
 }

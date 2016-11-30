@@ -64,7 +64,7 @@ shared.utils.waitForConnection({ host: 'http://www.api.com', port: 8080 }, [retr
 shared.utils.waitForConnection({ path: 'http://www.api.com:8080' }, [retries=6]);
 ```
 
-### message
+### messageBus
 - Allows to Publish a single message to AWS SNS topic:
 ```
 yield messageBus.publish(notifications.eventType.APARTMENT_CREATED, { apartment_id: 1, user_uuid: '211312-4123123-5344-234234-2343' });
@@ -82,6 +82,18 @@ let consumer = yield messageBus.consume.start(function (message, done) {
 ```
 yield consumer.stop();
 ``` 
+
+### userManagement
+- Allows to get user details object from auth0 API:
+```
+userManagement.getUserDetails(message.dataPayload.user_uuid)
+  .then(userDetails => {
+    // Do something with userDetails.
+  })
+  .catch(err => {
+    logger.error(err);
+  });
+```
 
 ## How to test
 - Run unit tests using ``yarn test``

@@ -16,7 +16,7 @@ const eventType = {
   OHE_UNREGISTERED: 'OHE_UNREGISTERED'
 };
 
-// Publish a single message to AWS SNS topic. https://github.com/matthewmueller/sns.js
+// Publish a single message to AWS SNS topic. 
 function publish(snsTopicArn, eventType, dataPayload) {
   let message = {
     environemnt: process.env.NODE_ENV,
@@ -28,7 +28,7 @@ function publish(snsTopicArn, eventType, dataPayload) {
   return SNS.publish(snsTopicArn, message);
 }
 
-// Consume messages from AWS SQS queue which is subscriber of AWS SNS topic. https://github.com/BBC/sqs-consumer
+// Consume messages from AWS SQS queue which is subscriber of AWS SNS topic. 
 // To stop consumer: consumer.stop();
 function start(sqsQueueUrl, handleMessage) {
   let consumer = SQS.create({

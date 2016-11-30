@@ -34,19 +34,17 @@ function getApiToken() {
     method: 'POST',
     url: authDomain + '/oauth/token',
     body: {
-      'client_id': config.get('AUTH0_API_CLIENT_ID '),
-      'client_secret': config.get('AUTH0_API_CLIENT_SECRET '),
+      'client_id': config.get('AUTH0_API_CLIENT_ID'),
+      'client_secret': config.get('AUTH0_API_CLIENT_SECRET'),
       'audience': authDomain + '/api/v2/',
       'grant_type': 'client_credentials'
     },
     json: true
   };
-  logger.debug(options, 'Token post options');
 
   return request(options)
     .then(result => {
-      logger.debug(result.body, 'API auth response body:');
-      return result.body.access_token;
+      return result.access_token;
     });
 }
 

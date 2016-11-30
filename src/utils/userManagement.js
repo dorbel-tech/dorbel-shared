@@ -6,6 +6,7 @@ const logger = require('../logger').getLogger(module);
 const ManagementClient = require('auth0').ManagementClient;
 const request = require('request-promise');
 
+// TODO: Implement user details caching.
 function getUserDetails(uuid) {
   return getApiToken()
     .then(token => {
@@ -26,6 +27,7 @@ function getUserDetails(uuid) {
     });
 }
 
+// TODO: Implement token caching and define expiration.
 function getApiToken() {
   const authDomain = 'https://' + config.get('AUTH0_DOMAIN');
   const options = {

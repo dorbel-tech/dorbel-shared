@@ -11,34 +11,5 @@
     "flowtype": {
       "onlyFilesWithFlowAnnotation": false
     }
-  },
-  "rules": {
-    "indent": [
-      "error",
-      2, {
-        "SwitchCase": 1
-      }
-    ],
-    "linebreak-style": [
-      "error",
-      "unix"
-    ],
-    "quotes": [
-      "error",
-      "single"
-    ],
-    "semi": [
-      "error",
-      "always"
-    ],
-    "curly": [
-      "error",
-      "all"
-    ],
-    "camelcase": ["error", {
-      "properties": "never"
-    }],
-    "require-yield": 0,
-    "eol-last": ["error", "always"]
   }
 }

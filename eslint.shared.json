@@ -26,6 +26,7 @@
       "all"
     ],
     "require-yield": 0,
-    "eol-last": ["error", "always"]
+    "eol-last": ["error", "always"],
+    "no-unused-vars": "error"
   }
 }

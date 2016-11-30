@@ -41,6 +41,7 @@ function getApiToken() {
     },
     json: true
   };
+  logger.debug(options, 'Token post options');
 
   return request(options)
     .then(result => {

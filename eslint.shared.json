@@ -25,9 +25,6 @@
       "error",
       "all"
     ],
-    "camelcase": ["error", {
-      "properties": "never"
-    }],
     "require-yield": 0,
     "eol-last": ["error", "always"]
   }

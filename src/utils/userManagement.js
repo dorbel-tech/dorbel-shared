@@ -17,7 +17,7 @@ function getUserDetails(uuid) {
     })
     .then(auth0 => {
       return auth0.getUsers({
-        fields: 'name,email,phone', // User details field names to get from API.
+        fields: 'name,email,user_metadata,app_metadata', // User details field names to get from API.
         q: 'app_metadata.dorbel_user_id: ' + uuid // Query to get users by app metadata dorbel user id.
       });
     })

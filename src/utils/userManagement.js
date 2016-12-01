@@ -18,10 +18,8 @@ function getUserDetails(uuid) {
   return cache.hgetAsync(cacheKeyName, uuid)
     .then(result => {
       if (result) {
-        logger.info(cacheKeyName, 'got value from cache');
         return JSON.parse(result);
       } else {
-        logger.info(cacheKeyName, 'was missing in cache');
         return getApiToken()
           .then(token => {
             return new ManagementClient({
@@ -64,10 +62,8 @@ function getApiToken() {
   return cache.getAsync(cacheKeyName)
     .then(result => {
       if (result) {
-        logger.info(cacheKeyName, 'got value from cache');
         return result;
       } else {
-        logger.info(cacheKeyName, 'was missing in cache');
         return request(options)
           .then(result => {
             cache.setex(cacheKeyName, ONE_DAY, result.access_token);

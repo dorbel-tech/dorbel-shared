@@ -25,7 +25,7 @@ class Cache {
   }
 }
 
-// Get user details by user uuid from Management API.
+// Get user details by user uuid from Management API or Cache.
 function getUserDetails(uuid) {
   let cache = new Cache();
   const cacheKeyName = 'auth0_users_by_uuid';
@@ -93,7 +93,7 @@ function getApiToken() {
     });
 }
 
-// Get user details by user token from Auth API.
+// Get user details by user token from Auth API or Cache.
 function* parseAuthToken(next) {
   const token = getAccessTokenFromHeader(this.request);
   const auth0 = new AuthenticationClient({

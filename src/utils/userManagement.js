@@ -14,16 +14,28 @@ const jwtDecode = require('jwt-decode');
 const moment = require('moment');
 const ONE_HOUR = 60 * 60;
 const ONE_DAY = ONE_HOUR * 24;
+let cacheInstance = null;
+
+// Singleton cache class to get the client.
+class Cache {
+  constructor() {
+    if (!cacheInstance) { cacheInstance = this; }
+    this.client = redis.createClient(6379, config.get('REDIS_HOST'));
+    return cacheInstance;
+  }
+}
 
 // Get user details by user uuid from Management API.
 function getUserDetails(uuid) {
-  const cache = redis.createClient(6379, config.get('REDIS_HOST'));
+  let cache = new Cache();
   const cacheKeyName = 'auth0_users_by_uuid';
 
-  return cache.hgetAsync(cacheKeyName, uuid)
+  return cache.client.hgetAsync(cacheKeyName, uuid)
     .then(result => {
       if (result) {
-        logger.debug({result}, 'Got user info from Cache by uuid.');
+        logger.debug({
+          result
+        }, 'Got user info from Cache by uuid.');
         return JSON.parse(result);
       } else {
         return getApiToken()
@@ -41,8 +53,10 @@ function getUserDetails(uuid) {
           })
           .then(user => {
             let flatUser = user[0]; // Removing hierarchy as got only one user.
-            cache.hset(cacheKeyName, uuid, JSON.stringify(flatUser));
-            logger.debug({flatUser}, 'Got user info from Management API by uuid.');
+            cache.client.hset(cacheKeyName, uuid, JSON.stringify(flatUser));
+            logger.debug({
+              flatUser
+            }, 'Got user info from Management API by uuid.');
             return flatUser;
           });
       }
@@ -50,7 +64,7 @@ function getUserDetails(uuid) {
 }
 
 function getApiToken() {
-  const cache = redis.createClient(6379, config.get('REDIS_HOST'));
+  let cache = new Cache();
   const cacheKeyName = 'auth0_management_api_token';
   const authDomain = 'https://' + config.get('AUTH0_DOMAIN');
   const options = {
@@ -65,14 +79,14 @@ function getApiToken() {
     json: true
   };
 
-  return cache.getAsync(cacheKeyName)
+  return cache.client.getAsync(cacheKeyName)
     .then(result => {
       if (result) {
         return result;
       } else {
         return request(options)
           .then(result => {
-            cache.setex(cacheKeyName, ONE_DAY, result.access_token);
+            cache.client.setex(cacheKeyName, ONE_DAY, result.access_token);
             return result.access_token;
           });
       }
@@ -89,22 +103,26 @@ function* parseAuthToken(next) {
 
   if (token) {
     logger.info('Getting user profile info for API.');
-    const cache = redis.createClient(6379, config.get('REDIS_HOST'));
+    let cache = new Cache();
 
-    yield cache.getAsync(token)
+    yield cache.client.getAsync(token)
       .then(result => {
         if (!result) {
           const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
-          return getInfo(token).then(response => {         
-            logger.debug({response}, 'Got user info from Auth API by token.');          
+          return getInfo(token).then(response => {
+            logger.debug({
+              response
+            }, 'Got user info from Auth API by token.');
             let exp = jwtDecode(token).exp; // Token expiration seconds in unix. 
             let now = moment().unix(); // Now seconds in unix.
-            let ttl = exp-now; // Time to live in cache in seconds.
-            cache.setex(token, ttl, JSON.stringify(response));
+            let ttl = exp - now; // Time to live in cache in seconds.
+            cache.client.setex(token, ttl, JSON.stringify(response));
             return response;
           });
         } else {
-          logger.debug({result}, 'Got user info from Cache by token.');          
+          logger.debug({
+            result
+          }, 'Got user info from Cache by token.');
           return JSON.parse(result);
         }
       })
@@ -113,7 +131,7 @@ function* parseAuthToken(next) {
           id: data.dorbel_user_id,
           email: data.email,
           name: data.name
-        });        
+        });
       });
   }
 

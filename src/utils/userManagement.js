@@ -3,21 +3,27 @@
 
 const config = require('../config');
 const logger = require('../logger').getLogger(module);
+const AuthenticationClient = require('auth0').AuthenticationClient;
 const ManagementClient = require('auth0').ManagementClient;
 const request = require('request-promise');
 const redis = require('redis');
-const bluebird = require('bluebird'); bluebird.promisifyAll(redis.RedisClient.prototype);
+const bluebird = require('bluebird');
+bluebird.promisifyAll(redis.RedisClient.prototype);
+const promisify = require('es6-promisify');
+const jwtDecode = require('jwt-decode');
+const moment = require('moment');
 const ONE_HOUR = 60 * 60;
 const ONE_DAY = ONE_HOUR * 24;
 
-// TODO: Implement user details caching.
+// Get user details by user uuid from Management API.
 function getUserDetails(uuid) {
   const cache = redis.createClient(6379, config.get('REDIS_HOST'));
-  const cacheKeyName = 'auth0_users';
+  const cacheKeyName = 'auth0_users_by_uuid';
 
   return cache.hgetAsync(cacheKeyName, uuid)
     .then(result => {
       if (result) {
+        logger.debug({result}, 'Got user info from Cache by uuid.');
         return JSON.parse(result);
       } else {
         return getApiToken()
@@ -34,15 +40,15 @@ function getUserDetails(uuid) {
             });
           })
           .then(user => {
-            cache.hset(cacheKeyName, uuid, JSON.stringify(user));
-            logger.debug(user);
-            return user;
+            let flatUser = user[0]; // Removing hierarchy as got only one user.
+            cache.hset(cacheKeyName, uuid, JSON.stringify(flatUser));
+            logger.debug({flatUser}, 'Got user info from Management API by uuid.');
+            return flatUser;
           });
       }
     });
 }
 
-// TODO: Implement token caching and define expiration.
 function getApiToken() {
   const cache = redis.createClient(6379, config.get('REDIS_HOST'));
   const cacheKeyName = 'auth0_management_api_token';
@@ -73,6 +79,57 @@ function getApiToken() {
     });
 }
 
+// Get user details by user token from Auth API.
+function* parseAuthToken(next) {
+  const token = getAccessTokenFromHeader(this.request);
+  const auth0 = new AuthenticationClient({
+    domain: config.get('AUTH0_DOMAIN'),
+    clientId: config.get('AUTH0_FRONT_CLIENT_ID')
+  });
+
+  if (token) {
+    logger.info('Getting user profile info for API.');
+    const cache = redis.createClient(6379, config.get('REDIS_HOST'));
+
+    yield cache.getAsync(token)
+      .then(result => {
+        if (!result) {
+          const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
+          return getInfo(token).then(response => {         
+            logger.debug({response}, 'Got user info from Auth API by token.');          
+            let exp = jwtDecode(token).exp; // Token expiration seconds in unix. 
+            let now = moment().unix(); // Now seconds in unix.
+            let ttl = exp-now; // Time to live in cache in seconds.
+            cache.setex(token, ttl, JSON.stringify(response));
+            return response;
+          });
+        } else {
+          logger.debug({result}, 'Got user info from Cache by token.');          
+          return JSON.parse(result);
+        }
+      })
+      .then(data => {
+        this.request.headers['x-user-profile'] = JSON.stringify({
+          id: data.dorbel_user_id,
+          email: data.email,
+          name: data.name
+        });        
+      });
+  }
+
+  yield next;
+}
+
+function getAccessTokenFromHeader(req) {
+  if (req.headers.authorization) {
+    var tokenMatch = req.headers.authorization.match(/^bearer (.+)/i);
+    if (tokenMatch) {
+      return tokenMatch[1];
+    }
+  }
+}
+
 module.exports = {
-  getUserDetails
+  getUserDetails,
+  parseAuthToken
 };

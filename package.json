@@ -1,6 +1,6 @@
 {
   "name": "dorbel-shared",
-  "version": "0.4.29",
+  "version": "0.4.30",
   "description": "Shared module for dorbel services",
   "main": "src/index.js",
   "scripts": {
@@ -14,11 +14,15 @@
   "license": "ISC",
   "dependencies": {
     "auth0": "^2.5.0",
+    "bluebird": "^3.4.6",
     "bunyan": "~1.8.1",
+    "es6-promisify": "^5.0.0",
+    "jwt-decode": "^2.1.0",
     "le_node": "1.6.7",
     "lodash": "~4.16.3",
     "nconf": "~0.8.4",
     "newrelic": "1.31.0",
+    "redis": "^2.6.3",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
     "sns.js": "1.0.2",

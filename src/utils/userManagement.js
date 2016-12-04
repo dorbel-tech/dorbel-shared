@@ -33,9 +33,7 @@ function getUserDetails(uuid) {
   return cache.client.hgetAsync(cacheKeyName, uuid)
     .then(result => {
       if (result) {
-        logger.debug({
-          result
-        }, 'Got user info from Cache by uuid.');
+        logger.debug({ result }, 'Got user info from Cache by uuid.');
         return JSON.parse(result);
       } else {
         return getApiToken()
@@ -54,9 +52,7 @@ function getUserDetails(uuid) {
           .then(user => {
             let flatUser = user[0]; // Removing hierarchy as got only one user.
             cache.client.hset(cacheKeyName, uuid, JSON.stringify(flatUser));
-            logger.debug({
-              flatUser
-            }, 'Got user info from Management API by uuid.');
+            logger.debug({ flatUser }, 'Got user info from Management API by uuid.');
             return flatUser;
           });
       }
@@ -110,9 +106,7 @@ function* parseAuthToken(next) {
         if (!result) {
           const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
           return getInfo(token).then(response => {
-            logger.debug({
-              response
-            }, 'Got user info from Auth API by token.');
+            logger.debug({ response }, 'Got user info from Auth API by token.');
             let exp = jwtDecode(token).exp; // Token expiration seconds in unix. 
             let now = moment().unix(); // Now seconds in unix.
             let ttl = exp - now; // Time to live in cache in seconds.
@@ -120,9 +114,7 @@ function* parseAuthToken(next) {
             return response;
           });
         } else {
-          logger.debug({
-            result
-          }, 'Got user info from Cache by token.');
+          logger.debug({ result }, 'Got user info from Cache by token.');
           return JSON.parse(result);
         }
       })

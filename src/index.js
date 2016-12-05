@@ -11,6 +11,7 @@ module.exports = {
     requestLogger: require('./koa-middleware/request-logger'),
     swaggerModelValidator: require('./koa-middleware/swagger-model-validator'),
     errorHandler: require('./koa-middleware/error-handler'),
+    authenticate: require('./koa-middleware/authentication'),
   },
   utils: {
     waitForConnection: require('./utils/waitForConnection'),

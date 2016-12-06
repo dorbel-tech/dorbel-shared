@@ -1,57 +1,67 @@
-// Get user details from auth0 API. 
+// User details manilulation on auth0. 
 'user strict';
 
 const config = require('../config');
 const logger = require('../logger').getLogger(module);
+const cache = require('../helpers/cache');
 const AuthenticationClient = require('auth0').AuthenticationClient;
 const ManagementClient = require('auth0').ManagementClient;
 const request = require('request-promise');
-const redis = require('redis');
-const bluebird = require('bluebird');
-bluebird.promisifyAll(redis.RedisClient.prototype);
 const promisify = require('es6-promisify');
 const jwtDecode = require('jwt-decode');
 const moment = require('moment');
+let auth0Management = null;
 const ONE_HOUR = 60 * 60;
 const ONE_DAY = ONE_HOUR * 24;
-let cacheInstance = null;
+const userCacheKeyName = 'auth0_users_by_uuid';
 
-// Singleton cache class to get the client.
-class Cache {
-  constructor() {
-    if (!cacheInstance) { cacheInstance = this; }
-    this.client = redis.createClient(6379, config.get('REDIS_HOST'));
-    return cacheInstance;
+// Singleton cache class to get auth0 Management client.
+class Management {
+  constructor(token) {
+    if (!auth0Management) { auth0Management = this; }
+    this.client = new ManagementClient({
+      token: token,
+      domain: config.get('AUTH0_DOMAIN')
+    });
+    return auth0Management;
   }
 }
 
-// Get user details by user uuid from Management API or Cache.
-function getUserDetails(uuid) {
-  let cache = new Cache();
-  const cacheKeyName = 'auth0_users_by_uuid';
+// Update user details by user uuid using Management API or Cache.
+function updateUserDetails(user_uuid, userData) {
+  return getUserDetails(user_uuid)
+    .then(user => {
+      return getApiToken()
+        .then(token => { return new Management(token).client; })
+        .then(auth0 => {
+          return auth0.updateUser({ id: user.user_id }, userData)
+            .then(response => {
+              logger.info({ response }, 'Succesfully updated auth0 user details');
+              cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, response);
+            });
+        });
+    });
+}
 
-  return cache.client.hgetAsync(cacheKeyName, uuid)
+// Get user details by user uuid from Management API or Cache.
+function getUserDetails(user_uuid) {
+  return cache.getHashKey(userCacheKeyName, user_uuid)
     .then(result => {
       if (result) {
         logger.debug({ result }, 'Got user info from Cache by uuid.');
         return JSON.parse(result);
       } else {
         return getApiToken()
-          .then(token => {
-            return new ManagementClient({
-              token: token,
-              domain: config.get('AUTH0_DOMAIN')
-            });
-          })
+          .then(token => { return new Management(token).client; })
           .then(auth0 => {
             return auth0.getUsers({
-              fields: 'name,email,user_metadata,app_metadata', // User details field names to get from API.
-              q: 'app_metadata.dorbel_user_id: ' + uuid // Query to get users by app metadata dorbel user id.
+              fields: 'user_id,name,email,user_metadata,app_metadata', // User details field names to get from API.
+              q: 'app_metadata.dorbel_user_id: ' + user_uuid // Query to get users by app metadata dorbel user id.
             });
           })
           .then(user => {
             let flatUser = user[0]; // Removing hierarchy as got only one user.
-            cache.client.hset(cacheKeyName, uuid, JSON.stringify(flatUser));
+            cache.setHashKey(userCacheKeyName, user_uuid, flatUser);
             logger.debug({ flatUser }, 'Got user info from Management API by uuid.');
             return flatUser;
           });
@@ -60,7 +70,6 @@ function getUserDetails(uuid) {
 }
 
 function getApiToken() {
-  let cache = new Cache();
   const cacheKeyName = 'auth0_management_api_token';
   const authDomain = 'https://' + config.get('AUTH0_DOMAIN');
   const options = {
@@ -75,14 +84,14 @@ function getApiToken() {
     json: true
   };
 
-  return cache.client.getAsync(cacheKeyName)
+  return cache.getKey(cacheKeyName)
     .then(result => {
       if (result) {
         return result;
       } else {
         return request(options)
           .then(result => {
-            cache.client.setex(cacheKeyName, ONE_DAY, result.access_token);
+            cache.setKey(cacheKeyName, result.access_token, ONE_DAY);
             return result.access_token;
           });
       }
@@ -99,9 +108,8 @@ function* parseAuthToken(next) {
 
   if (token) {
     logger.info('Getting user profile info for API.');
-    let cache = new Cache();
 
-    yield cache.client.getAsync(token)
+    yield cache.getKey(token)
       .then(result => {
         if (!result) {
           const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
@@ -110,7 +118,8 @@ function* parseAuthToken(next) {
             let exp = jwtDecode(token).exp; // Token expiration seconds in unix. 
             let now = moment().unix(); // Now seconds in unix.
             let ttl = exp - now; // Time to live in cache in seconds.
-            cache.client.setex(token, ttl, JSON.stringify(response));
+            cache.setKey(token, response, ttl);
+            cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, response);
             return response;
           });
         } else {
@@ -141,5 +150,6 @@ function getAccessTokenFromHeader(req) {
 
 module.exports = {
   getUserDetails,
+  updateUserDetails,
   parseAuthToken
 };

@@ -9,8 +9,11 @@ let cacheInstance = null;
 // Singleton cache class to get Redis client.
 class Cache {
   constructor() {
-    if (!cacheInstance) { cacheInstance = this; }
-    this.client = redis.createClient(6379, config.get('REDIS_HOST'));
+    if (!cacheInstance) { 
+      if (!config.get('REDIS_HOST')) { throw new Error('You need to define REDIS_HOST environemnt variable!'); }      
+      this.client = redis.createClient(6379, config.get('REDIS_HOST')); 
+      cacheInstance = this;
+    }    
     return cacheInstance;
   }
 }
@@ -23,9 +26,9 @@ function getKey(cacheKeyName) {
 function setKey(cacheKeyName, value, expInSeconds) {
   let cache = new Cache();
   if (expInSeconds) {
-    cache.client.setex(cacheKeyName, expInSeconds, JSON.stringify(value));
+    return cache.client.setexAsync(cacheKeyName, expInSeconds, JSON.stringify(value));
   } else {
-    cache.client.set(cacheKeyName, JSON.stringify(value));
+    return cache.client.setAsync(cacheKeyName, JSON.stringify(value));
   }
 }
 
@@ -38,7 +41,7 @@ function getHashKey(hashName, hashKey){
 // Update global auth0 user cache hash of users by uuid in Redis. 
 function setHashKey(hashName, hashKey, value) {
   let cache = new Cache();
-  cache.client.hset(hashName, hashKey, JSON.stringify(value));
+  return cache.client.hsetAsync(hashName, hashKey, JSON.stringify(value));
 }
 
 module.exports = {

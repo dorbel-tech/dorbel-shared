@@ -68,12 +68,12 @@ function getUserDetails(user_uuid) {
               q: 'app_metadata.dorbel_user_id: ' + user_uuid // Query to get users by app metadata dorbel user id.
             });
           })
-        .then(user => {
-          let flatUser = user[0]; // Removing hierarchy as got only one user.
-          cache.setHashKey(userCacheKeyName, user_uuid, flatUser);
-          logger.debug({ flatUser }, 'Got user info from Management API by uuid.');
-          return flatUser;
-        });
+          .then(user => {
+            let flatUser = user[0]; // Removing hierarchy as got only one user.
+            cache.setHashKey(userCacheKeyName, user_uuid, flatUser);
+            logger.debug({ flatUser }, 'Got user info from Management API by uuid.');
+            return flatUser;
+          });
       }
     });
 }

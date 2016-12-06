@@ -34,11 +34,15 @@ function updateUserDetails(user_uuid, userData) {
   return getUserDetails(user_uuid)
     .then(user => {
       return getApiToken()
-        .then(token => { return (new Management(token)).client; })
+        .then(token => { 
+          const auth0 = new Management(token); 
+          return auth0.client;
+        })
         .then(auth0 => {
           return auth0.updateUser({ id: user.user_id }, userData)
             .then(response => {
-              logger.info({ response }, 'Succesfully updated auth0 user details');
+              logger.info(response.app_metadata.dorbel_user_id, 'Succesfully updated auth0 user details');
+              logger.debug({ response }, 'Updated auth0 user details');
               cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, response);
             });
         });
@@ -51,10 +55,13 @@ function getUserDetails(user_uuid) {
     .then(result => {
       if (result) {
         logger.debug({ result }, 'Got user info from Cache by uuid.');
-        return JSON.parse(result);
+        return result;
       } else {
         return getApiToken()
-          .then(token => { return (new Management(token)).client; })
+          .then(token => { 
+            const auth0 = new Management(token); 
+            return auth0.client;
+          })
           .then(auth0 => {
             return auth0.getUsers({
               fields: 'user_id,name,email,user_metadata,app_metadata', // User details field names to get from API.
@@ -129,7 +136,7 @@ function* parseAuthToken(next) {
           });
         } else {
           logger.debug({ result }, 'Got user info from Cache by token.');
-          return JSON.parse(result);
+          return result;
         }
       })
       .then(data => {

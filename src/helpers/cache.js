@@ -20,7 +20,7 @@ class Cache {
 
 function getKey(cacheKeyName) {
   let cache = new Cache();
-  return cache.client.getAsync(cacheKeyName);
+  return cache.client.getAsync(cacheKeyName).then(val => { return JSON.parse(val); });
 }
 
 function setKey(cacheKeyName, value, expInSeconds) {
@@ -35,7 +35,7 @@ function setKey(cacheKeyName, value, expInSeconds) {
 // Get global auth0 user from cache hash of users by uuid in Redis. 
 function getHashKey(hashName, hashKey){
   let cache = new Cache();
-  return cache.client.hgetAsync(hashName, hashKey);
+  return cache.client.hgetAsync(hashName, hashKey).then(val => { return JSON.parse(val); });
 }
 
 // Update global auth0 user cache hash of users by uuid in Redis. 

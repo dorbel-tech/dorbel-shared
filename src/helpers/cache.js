@@ -20,28 +20,36 @@ class Cache {
 
 function getKey(cacheKeyName) {
   let cache = new Cache();
-  return cache.client.getAsync(cacheKeyName).then(val => { return JSON.parse(val); });
+  return cache.client.getAsync(cacheKeyName).then(val => { return val; });
 }
 
 function setKey(cacheKeyName, value, expInSeconds) {
-  let cache = new Cache();
-  if (expInSeconds) {
-    return cache.client.setexAsync(cacheKeyName, expInSeconds, JSON.stringify(value));
+  if (value) {
+    let cache = new Cache();
+    if (expInSeconds) {
+      cache.client.setexAsync(cacheKeyName, expInSeconds, value);
+    } else {
+      cache.client.setAsync(cacheKeyName, value);
+    }
   } else {
-    return cache.client.setAsync(cacheKeyName, JSON.stringify(value));
+    throw new Error(`You are trying to cache undefined value to key ${cacheKeyName}!`);
   }
 }
 
 // Get global auth0 user from cache hash of users by uuid in Redis. 
 function getHashKey(hashName, hashKey){
   let cache = new Cache();
-  return cache.client.hgetAsync(hashName, hashKey).then(val => { return JSON.parse(val); });
+  return cache.client.hgetAsync(hashName, hashKey).then(val => { return val; });
 }
 
 // Update global auth0 user cache hash of users by uuid in Redis. 
 function setHashKey(hashName, hashKey, value) {
-  let cache = new Cache();
-  return cache.client.hsetAsync(hashName, hashKey, JSON.stringify(value));
+  if (value) {
+    let cache = new Cache();
+    cache.client.hsetAsync(hashName, hashKey, value);
+  } else {
+    throw new Error(`You are trying to cache undefined value to hash ${hashName} with key ${hashKey}!`);
+  }
 }
 
 module.exports = {

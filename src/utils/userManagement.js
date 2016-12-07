@@ -33,19 +33,24 @@ class Management {
 function updateUserDetails(user_uuid, userData) {
   return getUserDetails(user_uuid)
     .then(user => {
-      return getApiToken()
-        .then(token => { 
-          const auth0 = new Management(token); 
-          return auth0.client;
-        })
-        .then(auth0 => {
-          return auth0.updateUser({ id: user.user_id }, userData)
-            .then(response => {
-              logger.info(response.app_metadata.dorbel_user_id, 'Succesfully updated auth0 user details');
-              logger.debug({ response }, 'Updated auth0 user details');
-              cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, response);
-            });
-        });
+      if (user) {
+        return getApiToken()
+          .then(token => { 
+            const auth0 = new Management(token); 
+            return auth0.client;
+          })
+          .then(auth0 => {
+            return auth0.updateUser({ id: user.user_id }, userData)
+              .then(response => {
+                logger.info(response.app_metadata.dorbel_user_id, 'Succesfully updated auth0 user details');
+                logger.debug({ response }, 'Updated auth0 user details');
+                cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
+              });
+          });
+      } else {
+        logger.info(`Could'n update user details as user ${user_uuid} wasn't found!`);
+        return user;
+      }
     });
 }
 
@@ -55,7 +60,7 @@ function getUserDetails(user_uuid) {
     .then(result => {
       if (result) {
         logger.debug({ result }, 'Got user info from Cache by uuid.');
-        return result;
+        return JSON.parse(result);
       } else {
         return getApiToken()
           .then(token => { 
@@ -70,8 +75,12 @@ function getUserDetails(user_uuid) {
           })
           .then(user => {
             let flatUser = user[0]; // Removing hierarchy as got only one user.
-            cache.setHashKey(userCacheKeyName, user_uuid, flatUser);
-            logger.debug({ flatUser }, 'Got user info from Management API by uuid.');
+            if (flatUser) {
+              cache.setHashKey(userCacheKeyName, user_uuid, JSON.stringify(flatUser));
+              logger.debug({ flatUser }, 'Got user info from Management API by uuid.');
+            } else {
+              logger.info(`Got no user details from auth0 for ${user_uuid}`);
+            }
             return flatUser;
           });
       }
@@ -130,13 +139,14 @@ function* parseAuthToken(next) {
             let exp = jwtDecode(token).exp; // Token expiration seconds in unix. 
             let now = moment().unix(); // Now seconds in unix.
             let ttl = exp - now; // Time to live in cache in seconds.
-            cache.setKey(token, response, ttl);
-            cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, response);
+            cache.setKey(token, JSON.stringify(response), ttl);
+            cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
             return response;
           });
         } else {
-          logger.debug({ result }, 'Got user info from Cache by token.');
-          return result;
+          let parsedResult = JSON.parse(result);
+          logger.debug({ parsedResult }, 'Got user info from Cache by token.');
+          return parsedResult;
         }
       })
       .then(data => {

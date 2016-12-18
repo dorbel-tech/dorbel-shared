@@ -4,6 +4,7 @@
 const config = require('../config');
 const logger = require('../logger').getLogger(module);
 const cache = require('../helpers/cache');
+const analytics = require('./analytics');
 const AuthenticationClient = require('auth0').AuthenticationClient;
 const ManagementClient = require('auth0').ManagementClient;
 const request = require('request-promise');
@@ -45,6 +46,7 @@ function updateUserDetails(user_uuid, userData) {
                 logger.info(response.app_metadata.dorbel_user_id, 'Succesfully updated auth0 user details');
                 logger.debug({ response }, 'Updated auth0 user details');
                 cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
+                analytics.identify(response);
               });
           });
       } else {

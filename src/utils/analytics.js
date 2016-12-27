@@ -1,12 +1,11 @@
 'use strict';
-const Analytics = require('analytics-node');
 const logger = require('../logger').getLogger(module);
 const config = require('../config');
-
 const key = config.get('SEGMENT_IO_WRITE_KEY');
 let analytics;
 
 if (key) {
+  const Analytics = require('analytics-node');
   analytics = new Analytics(key);
 } else {
   logger.warn('Segment.io will not track as no key was supplied');
@@ -14,17 +13,17 @@ if (key) {
 }
 
 function track(userId, eventName, properties) {
-  logger.trace({userId, eventName, properties}, 'tracking event to segment io');
   analytics.track({
     userId,
     event: eventName,
     properties
   });
+  logger.trace({userId, eventName, properties}, 'tracking event to segment io');
 }
 
 function identify(user) {
-  logger.trace({}, 'identifing user to segment io');  
   analytics.identify(mapAuth0UserToSegmentUser(user));
+  logger.trace({user}, 'identifing user to segment io');  
 }
 
 function mapAuth0UserToSegmentUser(auth0user) {

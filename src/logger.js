@@ -8,11 +8,11 @@ function getLogger(callingModule) {
   let logLevel = config.get('LOG_LEVEL') || 'info';
   let callingFileName;
   if (callingModule) {
-    callingFileName = callingModule.filename.split('/').pop() || 'general';
+    callingFileName = callingModule.filename.split('/').pop();
   }
 
   let loggerSettings = { 
-    name: callingFileName,
+    name: callingFileName || 'general',
     streams: [
       {
         level: logLevel,

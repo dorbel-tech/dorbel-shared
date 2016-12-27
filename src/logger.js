@@ -18,7 +18,8 @@ function getLogger(callingModule) {
   };
 
   if (config.get('LOGENTRIES_TOKEN')) {
-    loggerSettings.stream = Logger.bunyanStream({ token: config.get('LOGENTRIES_TOKEN') });
+    loggerSettings.token = config.get('LOGENTRIES_TOKEN');
+    loggerSettings.streams = [ Logger.bunyanStream(loggerSettings) ];
   }
 
   const logger = bunyan.createLogger(loggerSettings);

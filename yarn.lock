@@ -236,6 +236,12 @@ buffer@4.9.1:
     ieee754 "^1.1.4"
     isarray "^1.0.0"
 
+bunyan-logentries@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/bunyan-logentries/-/bunyan-logentries-1.2.0.tgz#c6d13540cd29771d6a65829fdf90f97e0563e768"
+  dependencies:
+    le_node "^1.1.1"
+
 bunyan@~1.8.1:
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/bunyan/-/bunyan-1.8.5.tgz#0d619e83005fb89070f5f47982fc1bf00600878a"
@@ -1219,9 +1225,9 @@ lcid@^1.0.0:
   dependencies:
     invert-kv "^1.0.0"
 
-le_node@1.6.7:
-  version "1.6.7"
-  resolved "https://registry.yarnpkg.com/le_node/-/le_node-1.6.7.tgz#c8b59451b42c88785acbaa83999597266511c5c8"
+le_node@^1.1.1:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/le_node/-/le_node-1.7.0.tgz#104e634cb4f0be5fd7060348837def6133a8b297"
   dependencies:
     babel-runtime "6.6.1"
     codependency "0.1.4"

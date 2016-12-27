@@ -1,25 +1,36 @@
 'use strict';
 const config = require('./config');
 const bunyan = require('bunyan');
-const Logger = require('le_node');
-
-const LOG_LEVEL = 'LOG_LEVEL';
+const bunyanLogentries = require('bunyan-logentries');
 const childLoggers = [];
 
 function getLogger(callingModule) {
+  let logLevel = config.get('LOG_LEVEL') || 'info';
   let callingFileName;
   if (callingModule) {
-    callingFileName = callingModule.filename.split('/').pop();
+    callingFileName = callingModule.filename.split('/').pop() || 'general';
   }
 
   let loggerSettings = { 
-    name: callingFileName || 'general', 
-    level: config.get(LOG_LEVEL)
+    name: callingFileName,
+    streams: [
+      {
+        level: logLevel,
+        stream: process.stdout
+      }    
+    ]
   };
 
   if (config.get('LOGENTRIES_TOKEN')) {
-    loggerSettings.token = config.get('LOGENTRIES_TOKEN');
-    loggerSettings.streams = [ Logger.bunyanStream(loggerSettings) ];
+    let logEntriesStream = {
+      level: logLevel,
+      stream: bunyanLogentries.createStream({
+        token: config.get('LOGENTRIES_TOKEN'),
+        levels: ['debug', 'info', 'warn', 'error', 'fatal', 'trace']
+      }),
+      type: 'raw'
+    };
+    loggerSettings.streams.push(logEntriesStream);
   }
 
   const logger = bunyan.createLogger(loggerSettings);
@@ -27,7 +38,7 @@ function getLogger(callingModule) {
   return logger;
 }
 
-config.onKeyChange(LOG_LEVEL, change => {
+config.onKeyChange('LOG_LEVEL', change => {
   childLoggers.forEach(logger => logger.level(change.newValue));
 });
 

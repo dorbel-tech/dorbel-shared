@@ -1,6 +1,5 @@
 // User details manilulation on auth0. 
 'user strict';
-
 const config = require('../config');
 const logger = require('../logger').getLogger(module);
 const cache = require('../helpers/cache');
@@ -11,8 +10,13 @@ const request = require('request-promise');
 const promisify = require('es6-promisify');
 const jwtDecode = require('jwt-decode');
 const moment = require('moment');
+const _ = require('lodash');
+
 const userCacheKeyName = 'auth0_users_by_uuid';
 const ONE_DAY = 60 * 60 * 24;
+const userHeaderKey = 'x-user-profile';
+
+
 let auth0Management = null;
 
 // Singleton cache class to get auth0 Management client.
@@ -71,7 +75,7 @@ function getUserDetails(user_uuid) {
           })
           .then(auth0 => {
             return auth0.getUsers({
-              fields: 'user_id,name,email,user_metadata,app_metadata', // User details field names to get from API.
+              fields: 'user_id,name,email,user_metadata,app_metadata,picture,link,identities,given_name,family_name', // User details field names to get from API.
               q: 'app_metadata.dorbel_user_id: ' + user_uuid // Query to get users by app metadata dorbel user id.
             });
           })
@@ -87,6 +91,25 @@ function getUserDetails(user_uuid) {
           });
       }
     });
+}
+
+function getPublicProfile(user_uuid) {
+  return getUserDetails(user_uuid)
+  .then(user => {
+    const publicProfile = {
+      email : _.get(user, 'user_metadata.email') || user.email,
+      first_name: _.get(user, 'user_metadata.first_name') || user.given_name,
+      last_name: _.get(user, 'user_metadata.last_name') || user.family_name,
+      phone: _.get(user, 'user_metadata.phone'),
+      picture: user.picture
+    };
+
+    if (_.get(user, 'identities[0].provider') === 'facebook') {
+      publicProfile.facebook_link = user.link;
+    }
+    
+    return publicProfile;
+  });
 }
 
 function getApiToken() {
@@ -131,13 +154,16 @@ function* parseAuthToken(next) {
     clientId: config.get('AUTH0_FRONT_CLIENT_ID')
   });
 
+  // we clear this anyway so it cannot be hijacked 
+  this.request.headers[userHeaderKey] = undefined;
+
   if (token) {
     yield cache.getKey(token)
       .then(result => {
         if (!result) {
           const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
           return getInfo(token).then(response => {
-            logger.debug({ response }, 'Got user info from Auth API by token.');
+            logger.trace({ response }, 'Got user info from Auth API by token.');
             let exp = jwtDecode(token).exp; // Token expiration seconds in unix. 
             let now = moment().unix(); // Now seconds in unix.
             let ttl = exp - now; // Time to live in cache in seconds.
@@ -147,12 +173,12 @@ function* parseAuthToken(next) {
           });
         } else {
           let parsedResult = JSON.parse(result);
-          logger.debug({ parsedResult }, 'Got user info from Cache by token.');
+          logger.trace({ parsedResult }, 'Got user info from Cache by token.');
           return parsedResult;
         }
       })
       .then(data => {
-        this.request.headers['x-user-profile'] = JSON.stringify({
+        this.request.headers[userHeaderKey] = JSON.stringify({
           id: data.dorbel_user_id,
           email: data.email,
           name: data.name
@@ -175,5 +201,6 @@ function getAccessTokenFromHeader(req) {
 module.exports = {
   getUserDetails,
   updateUserDetails,
-  parseAuthToken
+  parseAuthToken,
+  getPublicProfile
 };

@@ -242,6 +242,12 @@ bunyan-logentries@^1.2.0:
   dependencies:
     le_node "^1.1.1"
 
+bunyan-sumologic@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/bunyan-sumologic/-/bunyan-sumologic-1.0.1.tgz#4ef9ad212bd93680c5dec3f0a1de91375cb17333"
+  dependencies:
+    request "^2.75.0"
+
 bunyan@~1.8.1:
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/bunyan/-/bunyan-1.8.5.tgz#0d619e83005fb89070f5f47982fc1bf00600878a"

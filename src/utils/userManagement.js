@@ -54,7 +54,7 @@ function updateUserDetails(user_uuid, userData) {
               });
           });
       } else {
-        logger.info(`Could'n update user details as user ${user_uuid} wasn't found!`);
+        logger.info({ user_uuid }, 'Failed to update user details as user was not found');
         return user;
       }
     });
@@ -65,7 +65,7 @@ function getUserDetails(user_uuid) {
   return cache.getHashKey(userCacheKeyName, user_uuid)
     .then(result => {
       if (result) {
-        logger.debug({ result }, 'Got user info from Cache by uuid.');
+        logger.trace({ result }, 'Got user info from Cache by uuid.');
         return JSON.parse(result);
       } else {
         return getApiToken()
@@ -83,9 +83,9 @@ function getUserDetails(user_uuid) {
             let flatUser = user[0]; // Removing hierarchy as got only one user.
             if (flatUser) {
               cache.setHashKey(userCacheKeyName, user_uuid, JSON.stringify(flatUser));
-              logger.debug({ flatUser }, 'Got user info from Management API by uuid.');
+              logger.trace({ flatUser }, 'Got user info from Management API by uuid.');
             } else {
-              logger.info(`Got no user details from auth0 for ${user_uuid}`);
+              logger.warn({ user_uuid }, 'Did not get user details from auth0');
             }
             return flatUser;
           });
@@ -181,7 +181,8 @@ function* parseAuthToken(next) {
         this.request.headers[userHeaderKey] = JSON.stringify({
           id: data.dorbel_user_id,
           email: data.email,
-          name: data.name
+          name: data.name,
+          role: _.get(data, 'app_metadata.role')
         });
       });
   }

@@ -18,6 +18,7 @@ module.exports = {
     waitForConnection: require('./utils/waitForConnection'),
     messageBus: require('./utils/messageBus'),
     userManagement: require('./utils/userManagement'),
-    analytics: require('./utils/analytics')
+    analytics: require('./utils/analytics'),
+    generic: require('./utils/generic'),
   }
 };

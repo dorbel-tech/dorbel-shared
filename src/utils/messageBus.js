@@ -48,10 +48,23 @@ function start(sqsQueueUrl, handleMessage) {
   return consumer;
 }
 
+function handleMessageWrapper(handleFunc, message, done) {
+  const messageBody = JSON.parse(message.Body);
+  const messageDataPayload = JSON.parse(messageBody.Message);
+  
+  handleFunc(messageDataPayload)
+    .then(() => done())
+    .catch(err => {
+      logger.error(err, 'Handling message error');
+      done(err);
+    });
+}
+
 module.exports = {
   eventType,
   publish,
   consume: {
     start
-  }
+  },
+  handleMessageWrapper
 };

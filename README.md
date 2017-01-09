@@ -72,7 +72,7 @@ yield messageBus.publish(notifications.eventType.APARTMENT_CREATED, { apartment_
 - Allows to consume messages from AWS SQS queue which is subscriber of AWS SNS topic.
 - Start queue consumer:
 ```
-let consumer = yield messageBus.consume.start(function (message, done) {
+let consumer = yield messageBus.consume.start(sqsQueueUrl, function (message, done) {
   logger.debug('Message content', message);
   // do some work with `message`
   done();

@@ -26,7 +26,7 @@ function publish(snsTopicArn, eventType, dataPayload) {
     dataPayload
   };
 
-  logger.debug(message, 'Publishing message');
+  logger.debug(eventType, dataPayload, 'Publishing message');
   return SNS.publish(snsTopicArn, message);
 }
 

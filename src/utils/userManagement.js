@@ -48,7 +48,6 @@ function updateUserDetails(user_uuid, userData) {
             return auth0.updateUser({ id: user.user_id }, userData)
               .then(response => {
                 logger.info(response.app_metadata.dorbel_user_id, 'Succesfully updated auth0 user details');
-                logger.debug({ response }, 'Updated auth0 user details');
                 cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
                 analytics.identify(response);
               });
@@ -65,7 +64,6 @@ function getUserDetails(user_uuid) {
   return cache.getHashKey(userCacheKeyName, user_uuid)
     .then(result => {
       if (result) {
-        logger.trace({ result }, 'Got user info from Cache by uuid.');
         return JSON.parse(result);
       } else {
         return getApiToken()
@@ -83,7 +81,7 @@ function getUserDetails(user_uuid) {
             let flatUser = user[0]; // Removing hierarchy as got only one user.
             if (flatUser) {
               cache.setHashKey(userCacheKeyName, user_uuid, JSON.stringify(flatUser));
-              logger.trace({ flatUser }, 'Got user info from Management API by uuid.');
+              logger.trace({ user_uuid }, 'Got user info from Management API by uuid.');
             } else {
               logger.warn({ user_uuid }, 'Did not get user details from auth0');
             }
@@ -163,7 +161,6 @@ function* parseAuthToken(next) {
         if (!result) {
           const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
           return getInfo(token).then(response => {
-            logger.trace({ response }, 'Got user info from Auth API by token.');
             let exp = jwtDecode(token).exp; // Token expiration seconds in unix. 
             let now = moment().unix(); // Now seconds in unix.
             let ttl = exp - now; // Time to live in cache in seconds.
@@ -173,7 +170,6 @@ function* parseAuthToken(next) {
           });
         } else {
           let parsedResult = JSON.parse(result);
-          logger.trace({ parsedResult }, 'Got user info from Cache by token.');
           return parsedResult;
         }
       })

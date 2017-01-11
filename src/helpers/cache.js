@@ -10,7 +10,7 @@ let cacheInstance = null;
 class Cache {
   constructor() {
     if (!cacheInstance) { 
-      if (!config.get('REDIS_HOST')) { throw new Error('You need to define REDIS_HOST environemnt variable!'); }      
+      if (!config.get('REDIS_HOST')) { throw new Error('You need to define REDIS_HOST environment variable!'); }      
       this.client = redis.createClient(6379, config.get('REDIS_HOST')); 
       cacheInstance = this;
     }    

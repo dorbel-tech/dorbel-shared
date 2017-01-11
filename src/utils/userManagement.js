@@ -23,7 +23,7 @@ let auth0Management = null;
 class Management {
   constructor(token) {
     if (!auth0Management) {
-      if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environemnt variable!'); }
+      if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
       this.client = new ManagementClient({
         domain: config.get('AUTH0_DOMAIN'),
         token: token
@@ -111,9 +111,9 @@ function getPublicProfile(user_uuid) {
 }
 
 function getApiToken() {
-  if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environemnt variable!'); }
-  if (!config.get('AUTH0_API_CLIENT_ID')) { throw new Error('You need to define AUTH0_API_CLIENT_ID environemnt variable!'); }
-  if (!config.get('AUTH0_API_CLIENT_SECRET')) { throw new Error('You need to define AUTH0_API_CLIENT_SECRET environemnt variable!'); }
+  if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
+  if (!config.get('AUTH0_API_CLIENT_ID')) { throw new Error('You need to define AUTH0_API_CLIENT_ID environment variable!'); }
+  if (!config.get('AUTH0_API_CLIENT_SECRET')) { throw new Error('You need to define AUTH0_API_CLIENT_SECRET environment variable!'); }
   const cacheKeyName = 'auth0_management_api_token';
   const authDomain = 'https://' + config.get('AUTH0_DOMAIN');
   const options = {
@@ -144,8 +144,8 @@ function getApiToken() {
 
 // Get user details by user token from Auth API or Cache.
 function* parseAuthToken(next) {
-  if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environemnt variable!'); }
-  if (!config.get('AUTH0_FRONT_CLIENT_ID')) { throw new Error('You need to define AUTH0_FRONT_CLIENT_ID environemnt variable!'); }
+  if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
+  if (!config.get('AUTH0_FRONT_CLIENT_ID')) { throw new Error('You need to define AUTH0_FRONT_CLIENT_ID environment variable!'); }
   const token = getAccessTokenFromHeader(this.request);
   const auth0 = new AuthenticationClient({
     domain: config.get('AUTH0_DOMAIN'),

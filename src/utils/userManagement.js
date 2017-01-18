@@ -99,7 +99,8 @@ function getPublicProfile(user_uuid) {
       first_name: _.get(user, 'user_metadata.first_name') || user.given_name,
       last_name: _.get(user, 'user_metadata.last_name') || user.family_name,
       phone: _.get(user, 'user_metadata.phone'),
-      picture: user.picture
+      picture: user.picture,
+      role: _.get(user, 'app_metadata.role')
     };
 
     if (_.get(user, 'identities[0].provider') === 'facebook') {

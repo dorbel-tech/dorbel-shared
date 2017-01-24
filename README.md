@@ -76,12 +76,12 @@ let consumer = yield messageBus.consume.start(sqsQueueUrl, function (message, do
   logger.debug('Message content', message);
   // do some work with `message`
   done();
-}); 
-``` 
+});
+```
 - Stop queue consumer:
 ```
 yield consumer.stop();
-``` 
+```
 
 ### userManagement
 - Allows to get user details object from auth0 API:
@@ -93,6 +93,22 @@ userManagement.getUserDetails(message.dataPayload.user_uuid)
   .catch(err => {
     logger.error(err);
   });
+```
+
+### Server Runner
+- Starts a clustered server and applies graceful exit
+```
+function * runMyServer() { // doesn't have to be a generator function
+  const app = koa();
+
+  // your function MUST return a promise resolving to the active server object
+  return new Promise((resolve, reject) => {
+    let server = app.listen(port, () => resolve(server))
+    .on('error', reject);
+  });
+}
+
+shared.utils.serverRunner.startCluster(runMyServer);
 ```
 
 ## How to test

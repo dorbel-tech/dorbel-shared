@@ -1,7 +1,7 @@
-// NewRelic init 
-if (process.env.NEW_RELIC_ENABLED) { 
+// NewRelic init
+if (process.env.NEW_RELIC_ENABLED) {
   process.env.NEW_RELIC_NO_CONFIG_FILE = 'True';
-  require('newrelic'); 
+  require('newrelic');
 }
 
 module.exports = {
@@ -20,5 +20,6 @@ module.exports = {
     userManagement: require('./utils/userManagement'),
     analytics: require('./utils/analytics'),
     generic: require('./utils/generic'),
+    serverRunner: require('./utils/serverRunner')
   }
 };

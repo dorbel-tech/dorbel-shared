@@ -19,7 +19,9 @@
     "bunyan": "~1.8.1",
     "bunyan-logentries": "^1.2.0",
     "bunyan-sumologic": "^1.0.1",
+    "co": "^4.6.0",
     "es6-promisify": "^5.0.0",
+    "http-graceful-shutdown": "^1.0.6",
     "jwt-decode": "^2.1.0",
     "lodash": "~4.16.3",
     "nconf": "~0.8.4",
@@ -29,7 +31,8 @@
     "request-promise": "^4.1.1",
     "sns.js": "1.0.2",
     "sqs-consumer": "3.4.0",
-    "swagger-model-validator": "~2.1.2"
+    "swagger-model-validator": "~2.1.2",
+    "throng": "^4.0.0"
   },
   "devDependencies": {
     "co-mocha": "~1.1.3",

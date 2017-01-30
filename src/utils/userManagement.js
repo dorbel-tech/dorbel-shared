@@ -196,9 +196,14 @@ function getAccessTokenFromHeader(req) {
   }
 }
 
+function isUserAdmin(user) {
+  return user.role === 'admin';
+}
+
 module.exports = {
   getUserDetails,
   updateUserDetails,
   parseAuthToken,
-  getPublicProfile
+  getPublicProfile,
+  isUserAdmin
 };

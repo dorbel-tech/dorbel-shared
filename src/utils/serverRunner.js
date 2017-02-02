@@ -9,6 +9,18 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 function start(startServerFunc, id) {
   logger.info({ id }, 'Starting process');
 
+  // Catch all uncaught exceptions and write to log.
+  // TODO: Move to dorbel-shared.
+  process.on('uncaughtException', function(err) {
+    logger.error(err, 'uncaughtException');
+  });
+
+  // Catch all uncaught exceptions and write to log.
+  // TODO: Move to dorbel-shared.
+  process.on('unhandledRejection', function(err) {
+    logger.error(err, 'unhandledRejection');
+  });
+
   co(startServerFunc)
   .then(server => gracefulShutdown(server, {
     development: isDevelopment, // graceful exit is skipped in development

@@ -176,12 +176,14 @@ function* parseAuthToken(next) {
         }
       })
       .then(data => {
-        this.request.headers[userHeaderKey] = JSON.stringify({
-          id: data.dorbel_user_id,
-          email: data.email,
-          name: data.name,
-          role: _.get(data, 'app_metadata.role')
-        });
+        if (data) {
+          this.request.headers[userHeaderKey] = JSON.stringify({
+            id: data.dorbel_user_id,
+            email: data.email,
+            name: data.name,
+            role: _.get(data, 'app_metadata.role')
+          });
+        }
       });
   }
 

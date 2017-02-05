@@ -51,6 +51,9 @@ function setKey(cacheKeyName, value, expInSeconds) {
         redisClient.setAsync(cacheKeyName, value);
       }
     }
+    else {
+      logger.warn(`${HELPER_NAME}: Redis is down, cache wasn't set. cacheKeyName: ${cacheKeyName}, value: ${value}`);
+    }
   }
   else {
     logAndTrowError(`You are trying to cache undefined value to key ${cacheKeyName}!`);
@@ -69,6 +72,9 @@ function setHashKey(hashName, hashKey, value) {
   if (value) {
     if (isRedisConnected) {
       redisClient.hsetAsync(hashName, hashKey, value);
+    }
+    else {
+      logger.warn(`${HELPER_NAME}: Redis is down, cache wasn't set. hashName: ${hashName}, hashKey: ${hashKey}, value: ${value}`);
     }
   } else {
     logAndTrowError(`You are trying to cache undefined value to hash ${hashName} with key ${hashKey}!`);

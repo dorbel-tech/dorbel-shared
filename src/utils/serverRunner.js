@@ -12,7 +12,7 @@ function start(startServerFunc, id) {
   co(startServerFunc)
   .then(server => gracefulShutdown(server, {
     development: isDevelopment, // graceful exit is skipped in development
-    signals: 'SIGINT SIGTERM uncaughtException unhandledRejection',
+    signals: 'SIGTERM uncaughtException unhandledRejection',
     callback: () => logger.info({ id }, 'Stopped process gracefully')
   }))
   .catch(err => logger.error(err, 'Failed to launch application'));

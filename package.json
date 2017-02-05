@@ -17,7 +17,6 @@
     "auth0": "^2.5.0",
     "bluebird": "^3.4.6",
     "bunyan": "~1.8.1",
-    "bunyan-logentries": "^1.2.0",
     "bunyan-sumologic": "^1.0.1",
     "co": "^4.6.0",
     "es6-promisify": "^5.0.0",

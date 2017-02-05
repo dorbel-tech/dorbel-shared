@@ -16,7 +16,6 @@ const userCacheKeyName = 'auth0_users_by_uuid';
 const ONE_DAY = 60 * 60 * 24;
 const userHeaderKey = 'x-user-profile';
 
-
 let auth0Management = null;
 
 // Singleton cache class to get auth0 Management client.
@@ -162,11 +161,13 @@ function* parseAuthToken(next) {
         if (!result) {
           const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
           return getInfo(token).then(response => {
-            let exp = jwtDecode(token).exp; // Token expiration seconds in unix. 
-            let now = moment().unix(); // Now seconds in unix.
-            let ttl = exp - now; // Time to live in cache in seconds.
-            cache.setKey(token, JSON.stringify(response), ttl);
-            cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
+            if (response) {
+              let exp = jwtDecode(token).exp; // Token expiration seconds in unix. 
+              let now = moment().unix(); // Now seconds in unix.
+              let ttl = exp - now; // Time to live in cache in seconds.
+              cache.setKey(token, JSON.stringify(response), ttl);
+              cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
+            }
             return response;
           });
         } else {

@@ -7,48 +7,63 @@ const bluebird = require('bluebird'); bluebird.promisifyAll(redis.RedisClient.pr
 const logger = require('../logger').getLogger(module);
 
 const HELPER_NAME = 'Redis cache helper';
-const REDIS_HOST = config.get('REDIS_HOST');
-const REDIS_PORT = config.get('REDIS_PORT');
-const REDIS_RECONNECT_AFTER_FAIL_MS = config.get('REDIS_RECONNECT_AFTER_FAIL_MS') || 60 * 1000;
-const REDIS_CONNECT_TIMEOUT_MS = config.get('REDIS_CONNECT_TIMEOUT_MS') || 2 * 1000;
+class Cache {
+  static get() {
+    if (this.redisClient) {
+      return this.redisClient;
+    }
+    else {
+      const REDIS_HOST = config.get('REDIS_HOST');
+      const REDIS_PORT = config.get('REDIS_PORT');
+      const REDIS_RECONNECT_AFTER_FAIL_MS = config.get('REDIS_RECONNECT_AFTER_FAIL_MS') || 60 * 1000;
+      const REDIS_CONNECT_TIMEOUT_MS = config.get('REDIS_CONNECT_TIMEOUT_MS') || 2 * 1000;
 
-let isRedisConnected = false;
+      this.redisClient = redis.createClient(REDIS_PORT, REDIS_HOST, {
+        retry_strategy: (options) => {
+          if (options.total_retry_time > REDIS_CONNECT_TIMEOUT_MS) {
+            logger.error(`${HELPER_NAME}: Couldn't connect to Redis host: ${REDIS_HOST}:${REDIS_PORT} after ${REDIS_CONNECT_TIMEOUT_MS} ms`);
+            return REDIS_RECONNECT_AFTER_FAIL_MS;
+          }
+        }
+      }).on('end', () => {
+        this.redisClient.isConnected = false;
+        logger.error(`${HELPER_NAME}: could not connect to Redis. Will retry in ${REDIS_RECONNECT_AFTER_FAIL_MS / 1000} seconds`);
+      }).on('connect', () => {
+        this.redisClient.isConnected = true;
+        logger.info(`${HELPER_NAME}: connected to Redis`);
+      }).on('reconnecting', () => {
+        logger.info(`${HELPER_NAME}: trying to reconnect to redis`);
+      });
 
-if (!REDIS_HOST || !REDIS_PORT) {
-  logAndTrowError(`You need to define REDIS_HOST and REDIS_PORT environment variables! HOST:${REDIS_HOST} PORT:${REDIS_PORT}`);
-}
+      if (!REDIS_HOST || !REDIS_PORT) {
+        logAndTrowError(`You need to define REDIS_HOST and REDIS_PORT environment variables! HOST:${REDIS_HOST} PORT:${REDIS_PORT}`);
+      }
 
-let redisClient = redis.createClient(REDIS_PORT, REDIS_HOST, {
-  retry_strategy: (options) => {
-    if (options.total_retry_time > REDIS_CONNECT_TIMEOUT_MS) {
-      logger.error(`${HELPER_NAME}: Couldn't connect to Redis host: ${REDIS_HOST}:${REDIS_PORT} after ${REDIS_CONNECT_TIMEOUT_MS} ms`);
-      return REDIS_RECONNECT_AFTER_FAIL_MS;
+      // Set to true since the connect event might have not happened yet. 
+      // Commands will be queued and executed once a connection is available.
+      this.redisClient.isConnected = true;
+      
+      return this.redisClient;
     }
   }
-}).on('end', () => {
-  isRedisConnected = false;
-  logger.error(`${HELPER_NAME}: could not connect to Redis. Will retry in ${REDIS_RECONNECT_AFTER_FAIL_MS / 1000} seconds`);
-}).on('connect', () => {
-  isRedisConnected = true;
-  logger.info(`${HELPER_NAME}: connected to Redis`);
-}).on('reconnecting', () => {
-  logger.info(`${HELPER_NAME}: trying to reconnect to redis`);
-});
+}
 
 function getKey(cacheKeyName) {
-  return isRedisConnected ?
-    redisClient.getAsync(cacheKeyName).then(val => { return val; })
+  let cache = Cache.get();
+  return cache.isConnected ?
+    cache.getAsync(cacheKeyName).then(val => { return val; })
     : redisDownResult();
 }
 
 function setKey(cacheKeyName, value, expInSeconds) {
+  let cache = Cache.get();
   if (value) {
-    if (isRedisConnected) {
+    if (cache.isConnected) {
       if (expInSeconds) {
-        redisClient.setexAsync(cacheKeyName, expInSeconds, value);
+        cache.setexAsync(cacheKeyName, expInSeconds, value);
       }
       else {
-        redisClient.setAsync(cacheKeyName, value);
+        cache.setAsync(cacheKeyName, value);
       }
     }
     else {
@@ -62,16 +77,18 @@ function setKey(cacheKeyName, value, expInSeconds) {
 
 // Get global auth0 user from cache hash of users by uuid in Redis. 
 function getHashKey(hashName, hashKey) {
-  return isRedisConnected ?
-    redisClient.hgetAsync(hashName, hashKey).then(val => { return val; })
+  let cache = Cache.get();
+  return cache.isConnected ?
+    cache.hgetAsync(hashName, hashKey).then(val => { return val; })
     : redisDownResult();
 }
 
 // Update global auth0 user cache hash of users by uuid in Redis. 
 function setHashKey(hashName, hashKey, value) {
+  let cache = Cache.get();
   if (value) {
-    if (isRedisConnected) {
-      redisClient.hsetAsync(hashName, hashKey, value);
+    if (cache.isConnected) {
+      cache.hsetAsync(hashName, hashKey, value);
     }
     else {
       logger.warn(`${HELPER_NAME}: Redis is down, cache wasn't set. hashName: ${hashName}, hashKey: ${hashKey}, value: ${value}`);

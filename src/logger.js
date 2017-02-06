@@ -1,13 +1,13 @@
 'use strict';
 const config = require('./config');
 const bunyan = require('bunyan');
-const bunyanLogentries = require('bunyan-logentries');
 const SumoLogger = require('bunyan-sumologic');
 const childLoggers = [];
 
 function getLogger(callingModule) {
   let logLevel = config.get('LOG_LEVEL') || 'info';
   let callingFileName;
+
   if (callingModule) {
     callingFileName = callingModule.filename.split('/').pop();
   }
@@ -33,18 +33,6 @@ function getLogger(callingModule) {
       type: 'raw'
     };
     loggerSettings.streams.push(sumologicStream);
-  }
-
-  if (config.get('LOGENTRIES_TOKEN')) {
-    let logEntriesStream = {
-      level: logLevel,
-      stream: bunyanLogentries.createStream({
-        token: config.get('LOGENTRIES_TOKEN'),
-        levels: ['debug', 'info', 'warn', 'error', 'fatal', 'trace']
-      }),
-      type: 'raw'
-    };
-    loggerSettings.streams.push(logEntriesStream);
   }
 
   const logger = bunyan.createLogger(loggerSettings);

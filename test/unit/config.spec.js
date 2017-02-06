@@ -19,10 +19,12 @@ describe('config', function () {
         [ process.env.NODE_ENV + '.json' ]: JSON.stringify(perEnvConfigFile)
       }
     });
-    config = require('../../src').config;
+    config = require('../../src/config');
     config.onKeyChange('KEY2', changesHandler);
     config.setConfigFileFolder(configFolder);
   });
+
+  after(() => mockFs.restore());
 
   it('should read values from config folder', () => {
     __.assertThat(config.get('KEY1'), __.equalTo(commonConfigFile.KEY1));
@@ -46,7 +48,7 @@ describe('config', function () {
 
   it('should update when key is changed', () => {
     __.assertThat(changesHandler.callCount, __.equalTo(1));
-    __.assertThat(changesHandler.args[0][0].newValue, // first call & first argument 
+    __.assertThat(changesHandler.args[0][0].newValue, // first call & first argument
       __.equalTo(perEnvConfigFile.KEY2));
   });
 });

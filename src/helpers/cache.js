@@ -14,9 +14,13 @@ class Cache {
     }
     else {
       const REDIS_HOST = config.get('REDIS_HOST');
-      const REDIS_PORT = config.get('REDIS_PORT');
+      const REDIS_PORT = config.get('REDIS_PORT') || 6379;
       const REDIS_RECONNECT_AFTER_FAIL_MS = config.get('REDIS_RECONNECT_AFTER_FAIL_MS') || 60 * 1000;
       const REDIS_CONNECT_TIMEOUT_MS = config.get('REDIS_CONNECT_TIMEOUT_MS') || 2 * 1000;
+
+      if (!REDIS_HOST) {
+        logAndTrowError(`You need to define REDIS_HOST environment variable! HOST:${REDIS_HOST} PORT:${REDIS_PORT}`);
+      }
 
       this.redisClient = redis.createClient(REDIS_PORT, REDIS_HOST, {
         retry_strategy: (options) => {
@@ -35,14 +39,10 @@ class Cache {
         logger.info(`${HELPER_NAME}: trying to reconnect to redis`);
       });
 
-      if (!REDIS_HOST || !REDIS_PORT) {
-        logAndTrowError(`You need to define REDIS_HOST and REDIS_PORT environment variables! HOST:${REDIS_HOST} PORT:${REDIS_PORT}`);
-      }
-
       // Set to true since the connect event might have not happened yet. 
       // Commands will be queued and executed once a connection is available.
       this.redisClient.isConnected = true;
-      
+
       return this.redisClient;
     }
   }

@@ -13,6 +13,7 @@ function getLogger(callingModule) {
   }
 
   let loggerSettings = { 
+    application: process.env.npm_package_name || 'unknown',
     name: callingFileName || 'general',
     streams: [
       {

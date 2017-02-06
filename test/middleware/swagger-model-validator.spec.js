@@ -2,7 +2,7 @@
 describe('middleware - swagger model validator', function () {
   const _ = require('lodash');
   const __ = require('hamjest');
-  const middleware = require('../../src').middleware.swaggerModelValidator();
+  const middleware = require('../../src/koa-middleware/swagger-model-validator')();
 
   const schema = {
     type: 'object',

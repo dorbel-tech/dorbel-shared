@@ -155,21 +155,25 @@ function* parseAuthToken(next) {
   // we clear this anyway so it cannot be hijacked
   this.request.headers[userHeaderKey] = undefined;
 
+  // If no token, continue
   if (!token) {
     return yield next;
   }
 
   let ttl = getTokenTTL(token);
+  // If token expired, continue
   if (ttl < 0) {
     return yield next;
   }
 
   let profile;
 
+  // Try to get user profile from cache
   const cacheResult = yield cache.getKey(token);
   if (cacheResult) {
     profile = JSON.parse(cacheResult);
   } else {
+    // If not in cache get user profile from auth0
     const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
     profile = yield getInfo(token);
 
@@ -181,6 +185,7 @@ function* parseAuthToken(next) {
   }
 
   if (profile) {
+    // Add profile to request headers. This request is proxied to the backend APIS
     this.request.headers[userHeaderKey] = JSON.stringify({
       id: profile.dorbel_user_id,
       email: profile.email,

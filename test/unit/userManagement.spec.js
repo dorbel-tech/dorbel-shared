@@ -43,12 +43,6 @@ describe('user management', function () {
 
   describe('parse auth token', function () {
 
-    before(function () {
-
-
-
-    });
-
     function* parseAndCompare(token, expected) {
       const context = {
         request: {
@@ -149,6 +143,4 @@ describe('user management', function () {
       __.assertThat(this.authenticationClientMock.tokens.getInfo.called, __.is(false));
     });
   });
-
 });
-

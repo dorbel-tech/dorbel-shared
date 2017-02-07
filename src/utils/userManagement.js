@@ -1,4 +1,4 @@
-// User details manilulation on auth0.
+// User details manipulation on auth0.
 'user strict';
 const config = require('../config');
 const logger = require('../logger').getLogger(module);

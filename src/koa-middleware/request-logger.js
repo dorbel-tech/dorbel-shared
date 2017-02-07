@@ -8,7 +8,7 @@ function getMiddleWare() {
     var start = new Date;
     yield next;
     var ms = new Date - start;
-    logger.debug({ method: this.method, path: this.url, statusCode: this.status, duration: ms }, 'Response');
+    logger.info({ method: this.method, path: this.url, statusCode: this.status, duration: ms }, 'Response');
   };
 }
 

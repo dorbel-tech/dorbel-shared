@@ -1,4 +1,4 @@
-// User details manilulation on auth0. 
+// User details manipulation on auth0.
 'user strict';
 const config = require('../config');
 const logger = require('../logger').getLogger(module);
@@ -39,8 +39,8 @@ function updateUserDetails(user_uuid, userData) {
     .then(user => {
       if (user) {
         return getApiToken()
-          .then(token => { 
-            const auth0 = new Management(token); 
+          .then(token => {
+            const auth0 = new Management(token);
             return auth0.client;
           })
           .then(auth0 => {
@@ -66,8 +66,8 @@ function getUserDetails(user_uuid) {
         return JSON.parse(result);
       } else {
         return getApiToken()
-          .then(token => { 
-            const auth0 = new Management(token); 
+          .then(token => {
+            const auth0 = new Management(token);
             return auth0.client;
           })
           .then(auth0 => {
@@ -105,7 +105,7 @@ function getPublicProfile(user_uuid) {
     if (_.get(user, 'identities[0].provider') === 'facebook') {
       publicProfile.facebook_link = user.link;
     }
-    
+
     return publicProfile;
   });
 }
@@ -152,42 +152,55 @@ function* parseAuthToken(next) {
     clientId: config.get('AUTH0_FRONT_CLIENT_ID')
   });
 
-  // we clear this anyway so it cannot be hijacked 
+  // we clear this anyway so it cannot be hijacked
   this.request.headers[userHeaderKey] = undefined;
 
-  if (token) {
-    yield cache.getKey(token)
-      .then(result => {
-        if (!result) {
-          const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
-          return getInfo(token).then(response => {
-            if (response) {
-              let exp = jwtDecode(token).exp; // Token expiration seconds in unix. 
-              let now = moment().unix(); // Now seconds in unix.
-              let ttl = exp - now; // Time to live in cache in seconds.
-              cache.setKey(token, JSON.stringify(response), ttl);
-              cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
-            }
-            return response;
-          });
-        } else {
-          let parsedResult = JSON.parse(result);
-          return parsedResult;
-        }
-      })
-      .then(data => {
-        if (data) {
-          this.request.headers[userHeaderKey] = JSON.stringify({
-            id: data.dorbel_user_id,
-            email: data.email,
-            name: data.name,
-            role: _.get(data, 'app_metadata.role')
-          });
-        }
-      });
+  // If no token, continue
+  if (!token) {
+    return yield next;
+  }
+
+  let ttl = getTokenTTL(token);
+  // If token expired, continue
+  if (ttl < 0) {
+    return yield next;
+  }
+
+  let profile;
+
+  // Try to get user profile from cache
+  const cacheResult = yield cache.getKey(token);
+  if (cacheResult) {
+    profile = JSON.parse(cacheResult);
+  } else {
+    // If not in cache get user profile from auth0
+    const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
+    profile = yield getInfo(token);
+
+    cache.setKey(token, JSON.stringify(profile), ttl);
+    let dorbelUserId = profile.dorbel_user_id;
+    if (dorbelUserId) {
+      cache.setHashKey(userCacheKeyName, dorbelUserId, JSON.stringify(profile));
+    }
+  }
+
+  if (profile) {
+    // Add profile to request headers. This request is proxied to the backend APIS
+    this.request.headers[userHeaderKey] = JSON.stringify({
+      id: profile.dorbel_user_id,
+      email: profile.email,
+      name: profile.name,
+      role: _.get(profile, 'app_metadata.role')
+    });
   }
 
   yield next;
+}
+
+function getTokenTTL(token) {
+  let exp = jwtDecode(token).exp; // Token expiration seconds in unix.
+  let now = moment().unix(); // Now seconds in unix.
+  return exp - now; // Time to live in cache in seconds.
 }
 
 function getAccessTokenFromHeader(req) {

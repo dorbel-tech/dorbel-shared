@@ -155,43 +155,47 @@ function* parseAuthToken(next) {
   // we clear this anyway so it cannot be hijacked
   this.request.headers[userHeaderKey] = undefined;
 
-  if (token) {
-    yield cache.getKey(token)
-      .then(result => {
-        if (!result) {
-          const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
-          return getInfo(token).then(response => {
-            if (response) {
-              let exp = jwtDecode(token).exp; // Token expiration seconds in unix.
-              let now = moment().unix(); // Now seconds in unix.
-              let ttl = exp - now; // Time to live in cache in seconds.
-              cache.setKey(token, JSON.stringify(response), ttl);
+  if (!token) {
+    return yield next;
+  }
 
-              let dorbelUserId = _.get(response, 'app_metadata.dorbel_user_id');
-              if (dorbelUserId) {
-                cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
-              }
-            }
-            return response;
-          });
-        } else {
-          let parsedResult = JSON.parse(result);
-          return parsedResult;
-        }
-      })
-      .then(data => {
-        if (data) {
-          this.request.headers[userHeaderKey] = JSON.stringify({
-            id: data.dorbel_user_id,
-            email: data.email,
-            name: data.name,
-            role: _.get(data, 'app_metadata.role')
-          });
-        }
-      });
+  let ttl = getTokenTTL(token);
+  if (ttl < 0) {
+    return yield next;
+  }
+
+  let profile;
+
+  const cacheResult = yield cache.getKey(token);
+  if (cacheResult) {
+    profile = JSON.parse(cacheResult);
+  } else {
+    const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
+    profile = yield getInfo(token);
+
+    cache.setKey(token, JSON.stringify(profile), ttl);
+    let dorbelUserId = profile.dorbel_user_id;
+    if (dorbelUserId) {
+      cache.setHashKey(userCacheKeyName, dorbelUserId, JSON.stringify(profile));
+    }
+  }
+
+  if (profile) {
+    this.request.headers[userHeaderKey] = JSON.stringify({
+      id: profile.dorbel_user_id,
+      email: profile.email,
+      name: profile.name,
+      role: _.get(profile, 'app_metadata.role')
+    });
   }
 
   yield next;
+}
+
+function getTokenTTL(token) {
+  let exp = jwtDecode(token).exp; // Token expiration seconds in unix.
+  let now = moment().unix(); // Now seconds in unix.
+  return exp - now; // Time to live in cache in seconds.
 }
 
 function getAccessTokenFromHeader(req) {

@@ -28,6 +28,7 @@
     "redis": "^2.6.3",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
+    "sinon-as-promised": "^4.0.2",
     "sns.js": "1.0.2",
     "sqs-consumer": "3.4.0",
     "swagger-model-validator": "~2.1.2",

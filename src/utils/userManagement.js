@@ -1,4 +1,4 @@
-// User details manilulation on auth0. 
+// User details manilulation on auth0.
 'user strict';
 const config = require('../config');
 const logger = require('../logger').getLogger(module);
@@ -39,8 +39,8 @@ function updateUserDetails(user_uuid, userData) {
     .then(user => {
       if (user) {
         return getApiToken()
-          .then(token => { 
-            const auth0 = new Management(token); 
+          .then(token => {
+            const auth0 = new Management(token);
             return auth0.client;
           })
           .then(auth0 => {
@@ -66,8 +66,8 @@ function getUserDetails(user_uuid) {
         return JSON.parse(result);
       } else {
         return getApiToken()
-          .then(token => { 
-            const auth0 = new Management(token); 
+          .then(token => {
+            const auth0 = new Management(token);
             return auth0.client;
           })
           .then(auth0 => {
@@ -105,7 +105,7 @@ function getPublicProfile(user_uuid) {
     if (_.get(user, 'identities[0].provider') === 'facebook') {
       publicProfile.facebook_link = user.link;
     }
-    
+
     return publicProfile;
   });
 }
@@ -152,7 +152,7 @@ function* parseAuthToken(next) {
     clientId: config.get('AUTH0_FRONT_CLIENT_ID')
   });
 
-  // we clear this anyway so it cannot be hijacked 
+  // we clear this anyway so it cannot be hijacked
   this.request.headers[userHeaderKey] = undefined;
 
   if (token) {
@@ -162,11 +162,15 @@ function* parseAuthToken(next) {
           const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
           return getInfo(token).then(response => {
             if (response) {
-              let exp = jwtDecode(token).exp; // Token expiration seconds in unix. 
+              let exp = jwtDecode(token).exp; // Token expiration seconds in unix.
               let now = moment().unix(); // Now seconds in unix.
               let ttl = exp - now; // Time to live in cache in seconds.
               cache.setKey(token, JSON.stringify(response), ttl);
-              cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
+
+              let dorbelUserId = _.get(response, 'app_metadata.dorbel_user_id');
+              if (dorbelUserId) {
+                cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
+              }
             }
             return response;
           });

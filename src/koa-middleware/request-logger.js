@@ -10,7 +10,7 @@ function getMiddleWare() {
     let ms = new Date - start;
 
     // Don't report logs for health check requests.
-    if(this.url && (this.url.indexOf('/health') !== -1)) {
+    if(this.url && this.url.indexOf('/health') !== -1) {
       logger.info({ method: this.method, path: this.url, statusCode: this.status, duration: ms }, 'Response');
     }
   };

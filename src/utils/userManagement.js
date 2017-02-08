@@ -35,6 +35,10 @@ class Management {
 
 // Update user details by user uuid using Management API or Cache.
 function updateUserDetails(user_uuid, userData) {
+  if (!user_uuid) {
+    throw new Error('Cant update user details. Supplied user_uuid was undefined!'); 
+  }
+
   return getUserDetails(user_uuid)
     .then(user => {
       if (user) {
@@ -60,6 +64,10 @@ function updateUserDetails(user_uuid, userData) {
 
 // Get user details by user uuid from Management API or Cache.
 function getUserDetails(user_uuid) {
+  if (!user_uuid) {
+    throw new Error('Cant get user details. Supplied user_uuid was undefined!'); 
+  }
+
   return cache.getHashKey(userCacheKeyName, user_uuid)
     .then(result => {
       if (result) {
@@ -91,6 +99,10 @@ function getUserDetails(user_uuid) {
 }
 
 function getPublicProfile(user_uuid) {
+  if (!user_uuid) {
+    throw new Error('Cant get public user profile. Supplied user_uuid was undefined!'); 
+  }
+
   return getUserDetails(user_uuid)
   .then(user => {
     const publicProfile = {

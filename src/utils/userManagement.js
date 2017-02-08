@@ -46,7 +46,7 @@ function updateUserDetails(user_uuid, userData) {
           .then(auth0 => {
             return auth0.updateUser({ id: user.user_id }, userData)
               .then(response => {
-                logger.info(response.app_metadata.dorbel_user_id, 'Succesfully updated auth0 user details');
+                logger.info({ user_id: response.app_metadata.dorbel_user_id }, 'Succesfully updated auth0 user details');
                 cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
                 analytics.identify(response);
               });

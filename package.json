@@ -25,6 +25,7 @@
     "mock-require": "^2.0.1",
     "nconf": "~0.8.4",
     "newrelic": "1.31.0",
+    "raven": "^1.1.1",
     "redis": "^2.6.3",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",

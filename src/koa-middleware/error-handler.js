@@ -3,6 +3,7 @@
 'use strict';
 function getMiddleWare() {
   const logger = require('../logger').getLogger(module);
+  const sentryReporter = require('../utils/sentryReporter');
 
   return function* (next) {
     try {
@@ -11,6 +12,7 @@ function getMiddleWare() {
       this.status = err.status || 500;
       this.body = err.message;
       this.app.emit('error', err, this);
+      sentryReporter.report(err);
       logger.error(err.stack || err, 'Server Error');
     }
   };

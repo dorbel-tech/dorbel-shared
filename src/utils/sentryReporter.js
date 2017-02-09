@@ -7,6 +7,7 @@ const isDevelop = process.env.NODE_ENV === 'development';
 
 if (!isDevelop) {
   const dsn = config.get('SENTRY_DSN');
+
   if (dsn) {
     Raven.config(dsn).install();
   }

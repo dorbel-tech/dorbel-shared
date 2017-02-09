@@ -224,9 +224,9 @@ buffer@4.9.1:
     ieee754 "^1.1.4"
     isarray "^1.0.0"
 
-bunyan-sumologic@avnersorek/bunyan-sumologic:
-  version "1.1.0"
-  resolved "https://codeload.github.com/avnersorek/bunyan-sumologic/tar.gz/1b240e430d533a03f8d70a21935a9169d28c0362"
+bunyan-sumologic@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/bunyan-sumologic/-/bunyan-sumologic-1.2.0.tgz#77c090acaf0372d95707e124fa7c5d02b4172662"
   dependencies:
     request "^2.75.0"
 

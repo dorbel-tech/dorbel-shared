@@ -17,7 +17,7 @@
     "auth0": "^2.5.0",
     "bluebird": "^3.4.6",
     "bunyan": "~1.8.1",
-    "bunyan-sumologic": "avnersorek/bunyan-sumologic",
+    "bunyan-sumologic": "^1.2.0",
     "co": "^4.6.0",
     "es6-promisify": "^5.0.0",
     "jwt-decode": "^2.1.0",

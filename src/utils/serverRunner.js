@@ -1,4 +1,5 @@
 'use strict';
+
 const co = require('co');
 const throng = require('throng');
 const gracefulShutdown = require('./gracefulShutdown');
@@ -9,6 +10,17 @@ const isDevelopment = (process.env.NODE_ENV === 'development' || process.env.NOD
 
 function start(startServerFunc, id) {
   logger.info({ id }, 'Starting process');
+
+  // NewRelic monitoring init.
+  if (process.env.NEW_RELIC_ENABLED) {
+    process.env.NEW_RELIC_NO_CONFIG_FILE = 'True';
+    require('newrelic');
+  }
+
+  // RisingStack Trace monitoring init.
+  if (process.env.TRACE_ENABLED) {
+    require('@risingstack/trace');
+  }
 
   co(startServerFunc)
   .then(handleProcessErrors)

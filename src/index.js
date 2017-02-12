@@ -1,7 +1,12 @@
-// NewRelic init
+// NewRelic monitoring init.
 if (process.env.NEW_RELIC_ENABLED) {
   process.env.NEW_RELIC_NO_CONFIG_FILE = 'True';
   require('newrelic');
+}
+
+// RisingStack Trace monitoring init.
+if (process.env.TRACE_ENABLED) {
+  require('@risingstack/trace');
 }
 
 module.exports = {

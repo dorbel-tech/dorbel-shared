@@ -5,7 +5,7 @@ const gracefulShutdown = require('./gracefulShutdown');
 
 const Logger = require('../logger');
 const logger = Logger.getLogger(module);
-const isDevelopment = (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test');
+const isDevelopment = (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'ci');
 
 function start(startServerFunc, id) {
   logger.info({ id }, 'Starting process');

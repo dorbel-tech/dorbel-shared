@@ -4,7 +4,7 @@ const throng = require('throng');
 const gracefulShutdown = require('./gracefulShutdown');
 const Logger = require('../logger');
 const logger = Logger.getLogger(module);
-const isDevelopment = (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'ci');
+const runCluster = (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging');
 
 function start(startServerFunc, id) {
   logger.info({ id }, 'Starting process');
@@ -35,11 +35,11 @@ function handleProcessErrors(server) {
 }
 
 function startCluster(startServerFunc) {
-  if (isDevelopment) {
-    // don't run cluster in dev - for debugging
-    start(startServerFunc, 1);
-  } else {
+  if (runCluster) {
     throng(id => start(startServerFunc, id));
+  } else {
+    // don't run cluster in dev/test/ci - for debugging
+    start(startServerFunc, 1);
   }
 }
 

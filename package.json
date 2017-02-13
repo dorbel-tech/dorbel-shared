@@ -1,6 +1,6 @@
 {
   "name": "dorbel-shared",
-  "version": "0.4.67",
+  "version": "0.4.70",
   "description": "Shared module for dorbel services",
   "main": "src/index.js",
   "scripts": {

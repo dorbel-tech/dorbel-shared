@@ -12,8 +12,8 @@ function getMiddleWare() {
       this.status = err.status || 500;
       this.body = err.message;
       this.app.emit('error', err, this);
-      sentryReporter.report(err);
       logger.error(err.stack || err, 'Server Error');
+      sentryReporter.report(err);
     }
   };
 }

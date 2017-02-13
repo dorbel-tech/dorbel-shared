@@ -2,22 +2,21 @@
 const config = require('../config');
 const logger = require('../logger').getLogger(module);
 const Raven = require('raven');
+const reportErrors = (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging');
 
-const isDevelop = process.env.NODE_ENV === 'development';
-
-if (!isDevelop) {
+if (reportErrors) {
   const dsn = config.get('SENTRY_DSN');
 
   if (dsn) {
     Raven.config(dsn).install();
   }
   else {
-    logger.warn('Sentry DSN is not configured - errors will not be reported!');
+    logger.error('Sentry DSN is not configured - errors will not be reported!');
   }
 }
 
 function report(exception) {
-  if (!isDevelop) {
+  if (reportErrors) {
     Raven.captureException(exception, function (captureError, eventId) {
       logger.info(`Reported ${exception}. eventId: ${eventId}`);
     });

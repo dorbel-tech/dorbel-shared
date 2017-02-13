@@ -2,10 +2,9 @@
 const config = require('../config');
 const logger = require('../logger').getLogger(module);
 const Raven = require('raven');
+const isDevelopment = (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'ci');
 
-const isDevelop = process.env.NODE_ENV === 'development';
-
-if (!isDevelop) {
+if (!isDevelopment) {
   const dsn = config.get('SENTRY_DSN');
 
   if (dsn) {
@@ -17,7 +16,7 @@ if (!isDevelop) {
 }
 
 function report(exception) {
-  if (!isDevelop) {
+  if (!isDevelopment) {
     Raven.captureException(exception, function (captureError, eventId) {
       logger.info(`Reported ${exception}. eventId: ${eventId}`);
     });

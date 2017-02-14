@@ -18,7 +18,7 @@ const userHeaderKey = 'x-user-profile';
 
 let auth0Management = null;
 
-// Singleton cache class to get auth0 Management client.
+// Lazy loading for Auth0 Management client
 class Management {
   constructor(token) {
     if (!auth0Management) {
@@ -36,7 +36,7 @@ class Management {
 // Update user details by user uuid using Management API or Cache.
 function updateUserDetails(user_uuid, userData) {
   if (!user_uuid) {
-    throw new Error('Cant update user details. Supplied user_uuid was undefined!'); 
+    throw new Error('Cant update user details. Supplied user_uuid was undefined!');
   }
 
   return getUserDetails(user_uuid)
@@ -65,7 +65,7 @@ function updateUserDetails(user_uuid, userData) {
 // Get user details by user uuid from Management API or Cache.
 function getUserDetails(user_uuid) {
   if (!user_uuid) {
-    throw new Error('Cant get user details. Supplied user_uuid was undefined!'); 
+    throw new Error('Cant get user details. Supplied user_uuid was undefined!');
   }
 
   return cache.getHashKey(userCacheKeyName, user_uuid)
@@ -100,7 +100,7 @@ function getUserDetails(user_uuid) {
 
 function getPublicProfile(user_uuid) {
   if (!user_uuid) {
-    throw new Error('Cant get public user profile. Supplied user_uuid was undefined!'); 
+    throw new Error('Cant get public user profile. Supplied user_uuid was undefined!');
   }
 
   return getUserDetails(user_uuid)
@@ -154,47 +154,56 @@ function getApiToken() {
     });
 }
 
-// Get user details by user token from Auth API or Cache.
-function* parseAuthToken(next) {
+function getProfileFromAuth0(idToken) {
   if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
   if (!config.get('AUTH0_FRONT_CLIENT_ID')) { throw new Error('You need to define AUTH0_FRONT_CLIENT_ID environment variable!'); }
-  const token = getAccessTokenFromHeader(this.request);
-  const auth0 = new AuthenticationClient({
+
+  // AuthenticationClient is per-user and must be initialized every time
+  const client = new AuthenticationClient({
     domain: config.get('AUTH0_DOMAIN'),
     clientId: config.get('AUTH0_FRONT_CLIENT_ID')
   });
 
+  return promisify(client.tokens.getInfo, client.tokens)(idToken);
+}
+
+// Get user details by user token from Auth API or Cache.
+function* getProfileFromIdToken(idToken) {
+  const ttl = getTokenTTL(idToken);
+  if (ttl < 0) {
+    return;
+  }
+
+  // Try to get user profile from cache
+  const cacheResult = yield cache.getKey(idToken);
+  if (cacheResult) {
+    return JSON.parse(cacheResult);
+  }
+
+  // If not in cache get user profile from auth0
+  const profile = yield getProfileFromAuth0(idToken);
+
+  cache.setKey(idToken, JSON.stringify(profile), ttl);
+  let dorbelUserId = profile.dorbel_user_id;
+  if (dorbelUserId) {
+    cache.setHashKey(userCacheKeyName, dorbelUserId, JSON.stringify(profile));
+  }
+
+  return profile;
+}
+
+// Take the id-token from the header, fetch the profile, and attach it to the proxied request
+function* parseAuthToken(next) {
   // we clear this anyway so it cannot be hijacked
   this.request.headers[userHeaderKey] = undefined;
 
+  const token = getAccessTokenFromHeader(this.request);
   // If no token, continue
   if (!token) {
     return yield next;
   }
 
-  let ttl = getTokenTTL(token);
-  // If token expired, continue
-  if (ttl < 0) {
-    return yield next;
-  }
-
-  let profile;
-
-  // Try to get user profile from cache
-  const cacheResult = yield cache.getKey(token);
-  if (cacheResult) {
-    profile = JSON.parse(cacheResult);
-  } else {
-    // If not in cache get user profile from auth0
-    const getInfo = promisify(auth0.tokens.getInfo, auth0.tokens);
-    profile = yield getInfo(token);
-
-    cache.setKey(token, JSON.stringify(profile), ttl);
-    let dorbelUserId = profile.dorbel_user_id;
-    if (dorbelUserId) {
-      cache.setHashKey(userCacheKeyName, dorbelUserId, JSON.stringify(profile));
-    }
-  }
+  const profile = yield getProfileFromIdToken(token);
 
   if (profile) {
     // Add profile to request headers. This request is proxied to the backend APIS
@@ -232,6 +241,7 @@ module.exports = {
   getUserDetails,
   updateUserDetails,
   parseAuthToken,
+  getProfileFromIdToken,
   getPublicProfile,
   isUserAdmin
 };

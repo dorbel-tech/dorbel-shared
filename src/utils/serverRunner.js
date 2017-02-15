@@ -5,6 +5,7 @@ const gracefulShutdown = require('./gracefulShutdown');
 const Logger = require('../logger');
 const logger = Logger.getLogger(module);
 const runCluster = (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging');
+const newrelic = require('newrelic');
 
 function start(startServerFunc, id) {
   logger.info({ id }, 'Starting process');
@@ -23,12 +24,16 @@ function handleProcessErrors(server) {
       Logger.close()
     ])
     .catch(() => {}) // ignore errors thrown here
-    .then(() => process.exit(-1));
+    .then(() => {
+      newrelic.addCustomParameter('crash', 'true');
+      newrelic.agent.harvest(() => process.exit(-1));
+    });
   }
 
   process.on('SIGINT', exit);
   process.on('SIGTERM', exit);
   process.on('uncaughtException', function (err) {
+    newrelic.noticeError(err);
     logger.error(err, 'Uncaught exception in process, exiting');
     exit();
   });

@@ -4,7 +4,7 @@
 echo "Starting release of ${VERSION}."
 
 # Change version in all npm package files
-npm version patch --git-tag-version
+npm version patch -m --git-tag-version
 
 # Release application
 git push --follow-tags

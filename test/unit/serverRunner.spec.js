@@ -35,6 +35,12 @@ describe('server runner', function() {
       getLogger: () => this.mockLogger,
       close: this.loggerClose
     });
+    mockRequire('newrelic', {
+      addCustomParameter: sinon.spy(),
+      agent: {
+        harvest: sinon.spy()
+      }      
+    });
     this.processExit = this.sinon.stub(process, 'exit');
 
     this.mochaListeners = process.listeners('uncaughtException');

@@ -1,5 +1,4 @@
 'use strict';
-require('./utils/newrelic').init();
 
 module.exports = {
   config: require('./config'),

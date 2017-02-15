@@ -2,7 +2,7 @@
 // Reports error to logger.
 'use strict';
 function getMiddleWare() {
-  const newrelic = require('../utils/newrelic').init;
+  const newrelic = require('../utils/newrelic').init();
   const logger = require('../logger').getLogger(module);
   const sentryReporter = require('../utils/sentryReporter');
 

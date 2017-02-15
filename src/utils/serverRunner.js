@@ -1,11 +1,19 @@
 'use strict';
+
+// NewRelic init
+let newrelic = undefined;
+
+if (process.env.NEW_RELIC_ENABLED) {
+  process.env.NEW_RELIC_NO_CONFIG_FILE = 'True';
+  newrelic = require('newrelic');
+}
+
 const co = require('co');
 const throng = require('throng');
 const gracefulShutdown = require('./gracefulShutdown');
 const Logger = require('../logger');
 const logger = Logger.getLogger(module);
 const runCluster = (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging');
-const newrelic = require('newrelic');
 
 function start(startServerFunc, id) {
   logger.info({ id }, 'Starting process');
@@ -25,8 +33,12 @@ function handleProcessErrors(server) {
     ])
     .catch(() => {}) // ignore errors thrown here
     .then(() => {
-      newrelic.addCustomParameter('crash', 'true');
-      newrelic.agent.harvest(() => process.exit(-1));
+      if (newrelic) {
+        newrelic.addCustomParameter('crash', 'true');
+        newrelic.agent.harvest(() => process.exit(-1));
+      } else {
+        process.exit(-1);
+      }
     });
   }
 

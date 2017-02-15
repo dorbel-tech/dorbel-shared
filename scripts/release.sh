@@ -7,7 +7,7 @@ echo -n "Please describe what was changed in this release: "
 read MSG
 
 # Change version in all npm package files
-npm version patch --git-tag-version -m $MSG
+npm version patch --git-tag-version -m "$MSG"
 
 # Release application
 git push --follow-tags

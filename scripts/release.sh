@@ -3,8 +3,11 @@
 
 echo "Starting release of ${VERSION}."
 
+echo -n "Please describe what was changed in this release: "
+read MSG
+
 # Change version in all npm package files
-npm version patch -m --git-tag-version
+npm version patch -m $MSG --git-tag-version
 
 # Release application
 git push --follow-tags

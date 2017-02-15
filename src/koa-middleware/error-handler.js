@@ -2,14 +2,7 @@
 // Reports error to logger.
 'use strict';
 function getMiddleWare() {
-  // NewRelic init
-  let newrelic = undefined;
-
-  if (process.env.NEW_RELIC_ENABLED) {
-    process.env.NEW_RELIC_NO_CONFIG_FILE = 'True';
-    newrelic = require('newrelic');
-  }
-
+  const newrelic = require('../utils/newrelic');
   const logger = require('../logger').getLogger(module);
   const sentryReporter = require('../utils/sentryReporter');
 

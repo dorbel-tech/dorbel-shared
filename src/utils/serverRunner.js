@@ -33,7 +33,6 @@ function handleProcessErrors(server) {
   process.on('SIGINT', exit);
   process.on('SIGTERM', exit);
   process.on('uncaughtException', function (err) {
-    newrelic.noticeError(err);
     logger.error(err, 'Uncaught exception in process, exiting');
     exit();
   });

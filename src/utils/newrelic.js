@@ -17,15 +17,12 @@ function init() {
 function crashClose() {
   if (!_newrelic) {
     return Promise.resolve();
-  } else {
-    return new Promise(resolve => {
-      _newrelic.addCustomParameter('crash', 'true');
-      _newrelic.agent.harvest(() => {
-        process.exit(-1);
-        resolve();
-      });
-    });
-  }  
+  }
+
+  return new Promise(resolve => {
+    _newrelic.addCustomParameter('crash', 'true');
+    _newrelic.agent.harvest(resolve);
+  });
 }
 
 module.exports = {

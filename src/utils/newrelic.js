@@ -14,6 +14,21 @@ function init() {
   return _newrelic;
 }
 
+function crashClose() {
+  if (!_newrelic) {
+    return Promise.resolve();
+  } else {
+    return new Promise(resolve => {
+      _newrelic.addCustomParameter('crash', 'true');
+      _newrelic.agent.harvest(() => {
+        process.exit(-1);
+        resolve();
+      });
+    });
+  }  
+}
+
 module.exports = {
-  init
+  init,
+  crashClose
 };

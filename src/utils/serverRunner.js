@@ -21,17 +21,11 @@ function handleProcessErrors(server) {
   function exit() {
     Promise.all([
       graceful.shutdown(),
-      Logger.close()
+      Logger.close(),
+      newrelic.crashClose()
     ])
     .catch(() => {}) // ignore errors thrown here
-    .then(() => {
-      if (newrelic) {
-        newrelic.addCustomParameter('crash', 'true');
-        newrelic.agent.harvest(() => process.exit(-1));
-      } else {
-        process.exit(-1);
-      }
-    });
+    .then(() => process.exit(-1));
   }
 
   process.on('SIGINT', exit);

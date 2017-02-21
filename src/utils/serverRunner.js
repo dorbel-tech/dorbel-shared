@@ -34,6 +34,9 @@ function handleProcessErrors(server) {
     logger.error(err, 'Uncaught exception in process, exiting');
     exit();
   });
+  process.on('unhandledRejection', function (err) {
+    logger.error(err, 'Unhandled rejection in process');
+  });
 }
 
 function startCluster(startServerFunc) {

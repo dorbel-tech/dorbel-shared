@@ -11,7 +11,19 @@ function getListingUrl(listingId) {
   return website_url + '/apartments/' + listingId;
 }
 
+function normalizeSlug(slug, lowercase = false) {
+  let normailzed;
+  
+  if(slug){
+    normailzed = encodeURIComponent(slug.replace('\'', '').replace('%27', ''));
+    normailzed = lowercase ? normailzed.toLowerCase() : normailzed;
+  }
+  
+  return normailzed;
+}
+
 module.exports = {
   getListingUrl,
-  normalizePhone
+  normalizePhone,
+  normalizeSlug
 };

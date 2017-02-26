@@ -53,7 +53,7 @@ function updateUserDetails(user_uuid, userData) {
             logger.debug({ user_uuid: user.user_id }, 'Starting auth0.updateUser');             
             return auth0.updateUser({ id: user.user_id }, userData)
               .then(response => {
-                logger.info({ user_id: response.app_metadata.dorbel_user_id }, 'Succesfully updated auth0 user details');
+                logger.info({ user_uuid: response.app_metadata.dorbel_user_id }, 'Succesfully updated auth0 user details');
                 cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
                 analytics.identify(response);
               });

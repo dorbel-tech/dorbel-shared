@@ -35,6 +35,8 @@ class Management {
 
 // Update user details by user uuid using Management API or Cache.
 function updateUserDetails(user_uuid, userData) {
+  logger.debug({ user_uuid, userData }, 'Starting updateUserDetails');
+
   if (!user_uuid) {
     throw new Error('Cant update user details. Supplied user_uuid was undefined!');
   }
@@ -48,6 +50,7 @@ function updateUserDetails(user_uuid, userData) {
             return auth0.client;
           })
           .then(auth0 => {
+            logger.debug({ user_uuid: user.user_id }, 'Starting auth0.updateUser');             
             return auth0.updateUser({ id: user.user_id }, userData)
               .then(response => {
                 logger.info({ user_id: response.app_metadata.dorbel_user_id }, 'Succesfully updated auth0 user details');
@@ -56,7 +59,7 @@ function updateUserDetails(user_uuid, userData) {
               });
           });
       } else {
-        logger.info({ user_uuid }, 'Failed to update user details as user was not found');
+        logger.error({ user_uuid }, 'Failed to update user details as user was not found');
         return user;
       }
     });
@@ -64,6 +67,8 @@ function updateUserDetails(user_uuid, userData) {
 
 // Get user details by user uuid from Management API or Cache.
 function getUserDetails(user_uuid) {
+  logger.debug({ user_uuid }, 'Starting getUserDetails');
+  
   if (!user_uuid) {
     throw new Error('Cant get user details. Supplied user_uuid was undefined!');
   }
@@ -79,16 +84,18 @@ function getUserDetails(user_uuid) {
             return auth0.client;
           })
           .then(auth0 => {
+            logger.debug({ user_uuid }, 'Starting auth0.getUsers');             
             return auth0.getUsers({
               fields: 'user_id,name,email,user_metadata,app_metadata,picture,link,identities,given_name,family_name', // User details field names to get from API.
               q: 'app_metadata.dorbel_user_id: ' + user_uuid // Query to get users by app metadata dorbel user id.
             });
           })
           .then(user => {
+            logger.debug({ user_uuid, user }, 'Got user details from auth0.getUsers');             
             let flatUser = user[0]; // Removing hierarchy as got only one user.
             if (flatUser) {
               cache.setHashKey(userCacheKeyName, user_uuid, JSON.stringify(flatUser));
-              logger.trace({ user_uuid }, 'Got user info from Management API by uuid.');
+              logger.debug({ user_uuid }, 'Got user info from Management API by uuid.');
             } else {
               logger.warn({ user_uuid }, 'Did not get user details from auth0');
             }
@@ -123,6 +130,7 @@ function getPublicProfile(user_uuid) {
 }
 
 function getApiToken() {
+  logger.debug('Starting getApiToken');
   if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
   if (!config.get('AUTH0_API_CLIENT_ID')) { throw new Error('You need to define AUTH0_API_CLIENT_ID environment variable!'); }
   if (!config.get('AUTH0_API_CLIENT_SECRET')) { throw new Error('You need to define AUTH0_API_CLIENT_SECRET environment variable!'); }

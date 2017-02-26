@@ -77,6 +77,7 @@ function setKey(cacheKeyName, value, expInSeconds) {
 
 // Get global auth0 user from cache hash of users by uuid in Redis. 
 function getHashKey(hashName, hashKey) {
+  logger.debug({ hashName, hashKey }, 'Starting getHashKey');
   let cache = Cache.get();
   return cache.isConnected ?
     cache.hgetAsync(hashName, hashKey).then(val => { return val; })
@@ -85,6 +86,7 @@ function getHashKey(hashName, hashKey) {
 
 // Update global auth0 user cache hash of users by uuid in Redis. 
 function setHashKey(hashName, hashKey, value) {
+  logger.debug({ hashName, hashKey, value }, 'Starting setHashKey');
   let cache = Cache.get();
   if (value) {
     if (cache.isConnected) {

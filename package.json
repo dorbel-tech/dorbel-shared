@@ -45,9 +45,8 @@
     "sinon": "^1.17.6"
   },
   "nyc": {
-    "reporter": [
-      "json"
-    ],
+    "reporter": ["json"],
+    "include": ["src/**/*.{js}"],
     "report-dir": "./test/coverage"
   }
 }

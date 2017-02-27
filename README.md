@@ -1,4 +1,4 @@
-# dorbel-shared library [![Build Status](https://semaphoreci.com/api/v1/dorbel-tech/dorbel-shared/branches/master/badge.svg)](https://semaphoreci.com/dorbel-tech/dorbel-shared)
+# dorbel-shared library [![Build Status](https://semaphoreci.com/api/v1/dorbel-tech/dorbel-shared/branches/master/badge.svg)](https://semaphoreci.com/dorbel-tech/dorbel-shared) [![codecov](https://codecov.io/gh/dorbel-tech/dorbel-shared/branch/master/graph/badge.svg)](https://codecov.io/gh/dorbel-tech/dorbel-shared)
 > Shared library for use in dorbel services.
 
 ## How to add to project :

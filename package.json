@@ -6,7 +6,7 @@
   "scripts": {
     "release": "scripts/release.sh",
     "test": "yarn run test:unit",
-    "test:unit": "mocha test/before-tests.js test/**/*.spec.js",
+    "test:unit": "nyc --all mocha test/before-tests.js test/**/*.spec.js",
     "lint": "eslint --ext .js -f table src",
     "watch": "yarn test -- -w"
   },
@@ -25,6 +25,7 @@
     "mock-require": "^2.0.1",
     "nconf": "~0.8.4",
     "newrelic": "1.31.0",
+    "nyc": "^10.1.2",
     "redis": "^2.6.3",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
@@ -42,5 +43,10 @@
     "mocha": "~3.1.0",
     "mock-fs": "^3.12.1",
     "sinon": "^1.17.6"
+  },
+  "nyc": {
+    "reporter": ["json"],
+    "include": ["src/**/*.{js}"],
+    "report-dir": "./test/coverage"
   }
 }

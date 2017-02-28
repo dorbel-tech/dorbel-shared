@@ -14,7 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "analytics-node": "^2.1.0",
-    "auth0": "^2.5.0",
+    "auth0": "2.6.0",
     "bluebird": "^3.4.6",
     "bunyan": "~1.8.1",
     "bunyan-sumologic": "^1.2.0",

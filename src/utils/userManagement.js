@@ -13,9 +13,7 @@ const moment = require('moment');
 const _ = require('lodash');
 
 const userCacheKeyName = 'auth0_users_by_uuid';
-const ONE_DAY = 60 * 60 * 24;
 const userHeaderKey = 'x-user-profile';
-
 let auth0Management = null;
 
 // Lazy loading for Auth0 Management client
@@ -49,9 +47,9 @@ function updateUserDetails(user_uuid, userData) {
             const auth0 = new Management(token);
             return auth0.client;
           })
-          .then(auth0 => {
-            logger.debug({ user_uuid: user.user_id }, 'Starting auth0.updateUser');             
-            return auth0.updateUser({ id: user.user_id }, userData)
+          .then(auth0Client => {
+            logger.debug({ auth0_user_id: user.user_id }, 'Starting auth0.updateUser');             
+            return auth0Client.updateUser({ id: user.user_id }, userData)
               .then(response => {
                 logger.info({ user_uuid: response.app_metadata.dorbel_user_id }, 'Succesfully updated auth0 user details');
                 cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
@@ -83,9 +81,9 @@ function getUserDetails(user_uuid) {
             const auth0 = new Management(token);
             return auth0.client;
           })
-          .then(auth0 => {
+          .then(auth0Client => {
             logger.debug({ user_uuid }, 'Starting auth0.getUsers');             
-            return auth0.getUsers({
+            return auth0Client.getUsers({
               fields: 'user_id,name,email,user_metadata,app_metadata,picture,link,identities,given_name,family_name', // User details field names to get from API.
               q: 'app_metadata.dorbel_user_id: ' + user_uuid // Query to get users by app metadata dorbel user id.
             });
@@ -155,7 +153,9 @@ function getApiToken() {
       } else {
         return request(options)
           .then(result => {
-            cache.setKey(cacheKeyName, result.access_token, ONE_DAY);
+            logger.debug(result, 'Got API Token from auth0 v2 API');
+            cache.setKey(cacheKeyName, result.access_token, result.expires_in);
+            auth0Management = null; // Reset the singleton object to create client again with new token.
             return result.access_token;
           });
       }

@@ -17,6 +17,7 @@ module.exports = {
     userManagement: require('./utils/userManagement'),
     analytics: require('./utils/analytics'),
     generic: require('./utils/generic'),
-    serverRunner: require('./utils/serverRunner')
+    serverRunner: require('./utils/serverRunner'),
+    cache: require('./helpers/cache')
   }
 };

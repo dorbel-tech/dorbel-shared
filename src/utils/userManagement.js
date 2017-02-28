@@ -14,22 +14,6 @@ const _ = require('lodash');
 
 const userCacheKeyName = 'auth0_users_by_uuid';
 const userHeaderKey = 'x-user-profile';
-let auth0Management = null;
-
-// Lazy loading for Auth0 Management client
-class Management {
-  constructor(token) {
-    if (!auth0Management) {
-      if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
-      this.client = new ManagementClient({
-        domain: config.get('AUTH0_DOMAIN'),
-        token: token
-      });
-      auth0Management = this;
-    }
-    return auth0Management;
-  }
-}
 
 // Update user details by user uuid using Management API or Cache.
 function updateUserDetails(user_uuid, userData) {
@@ -44,7 +28,10 @@ function updateUserDetails(user_uuid, userData) {
       if (user) {
         return getApiToken()
           .then(token => {
-            const auth0 = new Management(token);
+            const auth0 = new ManagementClient({
+              domain: config.get('AUTH0_DOMAIN'),
+              token: token
+            });
             return auth0.client;
           })
           .then(auth0Client => {
@@ -78,7 +65,10 @@ function getUserDetails(user_uuid) {
       } else {
         return getApiToken()
           .then(token => {
-            const auth0 = new Management(token);
+            const auth0 = new ManagementClient({
+              domain: config.get('AUTH0_DOMAIN'),
+              token: token
+            });
             return auth0.client;
           })
           .then(auth0Client => {
@@ -155,7 +145,6 @@ function getApiToken() {
           .then(result => {
             logger.debug(result, 'Got API Token from auth0 v2 API');
             cache.setKey(cacheKeyName, result.access_token, result.expires_in);
-            auth0Management = null; // Reset the singleton object to create client again with new token.
             return result.access_token;
           });
       }

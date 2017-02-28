@@ -1,8 +1,6 @@
 'use strict';
-const _ = require('lodash');
 const __ = require('hamjest');
 const sinon = require('sinon');
-
 const mockRequire = require('mock-require');
 
 describe('middleware - error-handler', function () {

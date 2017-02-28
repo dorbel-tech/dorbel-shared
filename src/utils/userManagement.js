@@ -34,9 +34,9 @@ function updateUserDetails(user_uuid, userData) {
             });
             return auth0.client;
           })
-          .then(auth0Client => {
+          .then(auth0 => {
             logger.debug({ auth0_user_id: user.user_id }, 'Starting auth0.updateUser');             
-            return auth0Client.updateUser({ id: user.user_id }, userData)
+            return auth0.updateUser({ id: user.user_id }, userData)
               .then(response => {
                 logger.info({ user_uuid: response.app_metadata.dorbel_user_id }, 'Succesfully updated auth0 user details');
                 cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
@@ -71,9 +71,9 @@ function getUserDetails(user_uuid) {
             });
             return auth0.client;
           })
-          .then(auth0Client => {
+          .then(auth0 => {
             logger.debug({ user_uuid }, 'Starting auth0.getUsers');             
-            return auth0Client.getUsers({
+            return auth0.getUsers({
               fields: 'user_id,name,email,user_metadata,app_metadata,picture,link,identities,given_name,family_name', // User details field names to get from API.
               q: 'app_metadata.dorbel_user_id: ' + user_uuid // Query to get users by app metadata dorbel user id.
             });

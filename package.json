@@ -1,6 +1,6 @@
 {
   "name": "dorbel-shared",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "Shared module for dorbel services",
   "main": "src/index.js",
   "scripts": {
@@ -45,8 +45,12 @@
     "sinon": "^1.17.6"
   },
   "nyc": {
-    "reporter": ["json"],
-    "include": ["src/**/*.{js}"],
+    "reporter": [
+      "json"
+    ],
+    "include": [
+      "src/**/*.{js}"
+    ],
     "report-dir": "./test/coverage"
   }
 }

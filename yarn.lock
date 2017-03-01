@@ -173,9 +173,9 @@ asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
 
-auth0@2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/auth0/-/auth0-2.6.0.tgz#dbab309155fbbce41b88f9c08336ba5fbab8520e"
+auth0@2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/auth0/-/auth0-2.5.0.tgz#95939460013afdccc57d0f4db091bc7f9966efe4"
   dependencies:
     bluebird "^2.10.2"
     request "^2.75.0"

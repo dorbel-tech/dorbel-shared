@@ -15,8 +15,8 @@ const _ = require('lodash');
 const userCacheKeyName = 'auth0_users_by_uuid';
 const userHeaderKey = 'x-user-profile';
 
-let auth0Management = null;		
-  
+let auth0Management = null;
+
 // Lazy loading singleton for Auth0 Management client
 class Management {
   constructor(token) {

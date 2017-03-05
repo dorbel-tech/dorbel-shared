@@ -14,23 +14,7 @@ const _ = require('lodash');
 
 const userCacheKeyName = 'auth0_users_by_uuid';
 const userHeaderKey = 'x-user-profile';
-
-let auth0Management = null;
-
-// Lazy loading singleton for Auth0 Management client
-class Management {
-  constructor(token) {
-    if (!auth0Management) {
-      if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
-      this.client = new ManagementClient({
-        domain: config.get('AUTH0_DOMAIN'),
-        token: token
-      });
-      auth0Management = this;
-    }
-    return auth0Management;
-  }
-}
+const TWO_HOURS = 60 * 60 * 2;
 
 // Update user details by user uuid using Management API or Cache.
 function updateUserDetails(user_uuid, userData) {
@@ -44,7 +28,7 @@ function updateUserDetails(user_uuid, userData) {
     .then(user => {
       if (user) {
         return getApiToken()
-          .then(token => { return new Management(token).client; })
+          .then(token => { return new ManagementClient({ domain: config.get('AUTH0_DOMAIN'), token: token }); })
           .then(auth0Client => {
             logger.debug({ auth0_user_id: user.user_id }, 'Starting auth0.updateUser');             
             return auth0Client.updateUser({ id: user.user_id }, userData)
@@ -75,7 +59,7 @@ function getUserDetails(user_uuid) {
         return JSON.parse(result);
       } else {
         return getApiToken()
-          .then(token => { return new Management(token).client; })
+          .then(token => { return new ManagementClient({ domain: config.get('AUTH0_DOMAIN'), token: token }); })
           .then(auth0Client => {
             logger.debug({ user_uuid }, 'Starting auth0.getUsers');             
             return auth0Client.getUsers({
@@ -149,8 +133,7 @@ function getApiToken() {
         return request(options)
           .then(result => {
             logger.debug(result, 'Got API Token from auth0 v2 API');
-            auth0Management = null; // Reset singleton to refresh new token.
-            cache.setKey(cacheKeyName, result.access_token, result.expires_in);
+            cache.setKey(cacheKeyName, result.access_token, result.expires_in - TWO_HOURS);
             return result.access_token;
           });
       }

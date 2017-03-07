@@ -19,7 +19,7 @@ class Cache {
       const REDIS_CONNECT_TIMEOUT_MS = config.get('REDIS_CONNECT_TIMEOUT_MS') || 2 * 1000;
 
       if (!REDIS_HOST) {
-        logAndTrowError(`You need to define REDIS_HOST environment variable! HOST:${REDIS_HOST} PORT:${REDIS_PORT}`);
+        logAndThrowError(`You need to define REDIS_HOST environment variable! HOST:${REDIS_HOST} PORT:${REDIS_PORT}`);
       }
 
       this.redisClient = redis.createClient(REDIS_PORT, REDIS_HOST, {
@@ -39,7 +39,7 @@ class Cache {
         logger.info(`${HELPER_NAME}: trying to reconnect to redis`);
       });
 
-      // Set to true since the connect event might have not happened yet. 
+      // Set to true since the connect event might have not happened yet.
       // Commands will be queued and executed once a connection is available.
       this.redisClient.isConnected = true;
 
@@ -71,11 +71,11 @@ function setKey(cacheKeyName, value, expInSeconds) {
     }
   }
   else {
-    logAndTrowError(`You are trying to cache undefined value to key ${cacheKeyName}!`);
+    logAndThrowError(`You are trying to cache undefined value to key ${cacheKeyName}!`);
   }
 }
 
-// Get global auth0 user from cache hash of users by uuid in Redis. 
+// Gets a value stored in a Redis hash https://redis.io/commands/hget
 function getHashKey(hashName, hashKey) {
   logger.debug({ hashName, hashKey }, 'Starting getHashKey');
   let cache = Cache.get();
@@ -84,7 +84,7 @@ function getHashKey(hashName, hashKey) {
     : redisDownResult();
 }
 
-// Update global auth0 user cache hash of users by uuid in Redis. 
+// Sets a value inside a Redis hash https://redis.io/commands/hset
 function setHashKey(hashName, hashKey, value) {
   logger.debug({ hashName, hashKey, value }, 'Starting setHashKey');
   let cache = Cache.get();
@@ -96,7 +96,7 @@ function setHashKey(hashName, hashKey, value) {
       logger.warn(`${HELPER_NAME}: Redis is down, cache wasn't set. hashName: ${hashName}, hashKey: ${hashKey}, value: ${value}`);
     }
   } else {
-    logAndTrowError(`You are trying to cache undefined value to hash ${hashName} with key ${hashKey}!`);
+    logAndThrowError(`You are trying to cache undefined value to hash ${hashName} with key ${hashKey}!`);
   }
 }
 
@@ -105,7 +105,7 @@ function redisDownResult() {
   return new Promise((resolve) => { resolve(undefined); });
 }
 
-function logAndTrowError(message) {
+function logAndThrowError(message) {
   logger.error(`${HELPER_NAME}: ${message}`);
   throw new Error(message);
 }

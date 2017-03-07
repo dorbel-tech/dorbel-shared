@@ -13,7 +13,8 @@ function getMiddleWare() {
       this.body = err.message;
       this.app.emit('error', err, this);
       if (newrelic) { newrelic.noticeError(err); }
-      logger.error(err.stack || err, 'Server Error');
+      const requestId = this.request.headers['x-request-id'];
+      logger.error({ err, requestId }, 'Server Error');
     }
   };
 }

@@ -14,9 +14,10 @@ function getLogger(callingModule) {
     callingFileName = callingModule.filename.split('/').pop();
   }
 
-  let loggerSettings = { 
+  let loggerSettings = {
     application: process.env.npm_package_name || 'unknown',
     name: callingFileName || 'general',
+    serializers: bunyan.stdSerializers,
     streams: [
       {
         level: logLevel,

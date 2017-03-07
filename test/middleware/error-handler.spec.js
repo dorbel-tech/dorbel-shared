@@ -21,10 +21,17 @@ describe('middleware - error-handler', function () {
     middleware = mockRequire.reRequire('../../src/koa-middleware/error-handler')();
   });
 
+  afterEach(() => loggerMock.error.reset());
+
   after(() => mockRequire.stopAll());
 
   function * handleErrors(next) {
-    const context = { app: appMock };
+    const context = {
+      app: appMock,
+      request: {
+        headers: { 'x-request-id': '123' }
+      }
+    };
     yield middleware.bind(context)(next);
     return context;
   }
@@ -45,7 +52,10 @@ describe('middleware - error-handler', function () {
     __.assertThat(context.status, __.is(error.status));
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
-    __.assertThat(loggerMock.error.calledWith(error.stack, 'Server Error'), __.is(true));
+    __.assertThat(loggerMock.error.args[0], __.contains(
+      __.hasProperties({ err: error }),
+      __.is('Server Error')
+    ));
   });
 
   it('should stop flow if no stack and status code', function * () {
@@ -56,7 +66,27 @@ describe('middleware - error-handler', function () {
     __.assertThat(context.status, __.is(500));
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
-    __.assertThat(loggerMock.error.calledWith(error, 'Server Error'), __.is(true));
+    __.assertThat(loggerMock.error.args[0], __.contains(
+      __.hasProperties({ err: error }),
+      __.is('Server Error')
+    ));
+  });
+
+  it('should log request id', function * () {
+    const error = { message: 'general error' };
+    const next = sinon.stub().throws(error);
+    const requestId = '123-456-789';
+    const context = {
+      app: appMock,
+      request: {
+        headers: {
+          'x-request-id': requestId
+        }
+      }
+    };
+
+    yield middleware.bind(context)(next);
+    __.assertThat(loggerMock.error.args[0][0], __.hasProperties({ requestId, err: error }));
   });
 
 });

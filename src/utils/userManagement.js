@@ -13,25 +13,8 @@ const moment = require('moment');
 const _ = require('lodash');
 
 const userCacheKeyName = 'auth0_users_by_uuid';
-const ONE_DAY = 60 * 60 * 24;
 const userHeaderKey = 'x-user-profile';
-
-let auth0Management = null;
-
-// Lazy loading for Auth0 Management client
-class Management {
-  constructor(token) {
-    if (!auth0Management) {
-      if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
-      this.client = new ManagementClient({
-        domain: config.get('AUTH0_DOMAIN'),
-        token: token
-      });
-      auth0Management = this;
-    }
-    return auth0Management;
-  }
-}
+const TWO_HOURS = 60 * 60 * 2;
 
 // Update user details by user uuid using Management API or Cache.
 function updateUserDetails(user_uuid, userData) {
@@ -45,13 +28,10 @@ function updateUserDetails(user_uuid, userData) {
     .then(user => {
       if (user) {
         return getApiToken()
-          .then(token => {
-            const auth0 = new Management(token);
-            return auth0.client;
-          })
-          .then(auth0 => {
-            logger.debug({ user_uuid: user.user_id }, 'Starting auth0.updateUser');             
-            return auth0.updateUser({ id: user.user_id }, userData)
+          .then(token => { return new ManagementClient({ domain: config.get('AUTH0_DOMAIN'), token: token }); })
+          .then(auth0Client => {
+            logger.debug({ auth0_user_id: user.user_id }, 'Starting auth0.updateUser');             
+            return auth0Client.updateUser({ id: user.user_id }, userData)
               .then(response => {
                 logger.info({ user_uuid: response.app_metadata.dorbel_user_id }, 'Succesfully updated auth0 user details');
                 cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
@@ -79,13 +59,10 @@ function getUserDetails(user_uuid) {
         return JSON.parse(result);
       } else {
         return getApiToken()
-          .then(token => {
-            const auth0 = new Management(token);
-            return auth0.client;
-          })
-          .then(auth0 => {
+          .then(token => { return new ManagementClient({ domain: config.get('AUTH0_DOMAIN'), token: token }); })
+          .then(auth0Client => {
             logger.debug({ user_uuid }, 'Starting auth0.getUsers');             
-            return auth0.getUsers({
+            return auth0Client.getUsers({
               fields: 'user_id,name,email,user_metadata,app_metadata,picture,link,identities,given_name,family_name', // User details field names to get from API.
               q: 'app_metadata.dorbel_user_id: ' + user_uuid // Query to get users by app metadata dorbel user id.
             });
@@ -155,7 +132,8 @@ function getApiToken() {
       } else {
         return request(options)
           .then(result => {
-            cache.setKey(cacheKeyName, result.access_token, ONE_DAY);
+            logger.debug(result, 'Got API Token from auth0 v2 API');
+            cache.setKey(cacheKeyName, result.access_token, result.expires_in - TWO_HOURS);
             return result.access_token;
           });
       }

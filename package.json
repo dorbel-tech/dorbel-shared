@@ -1,12 +1,12 @@
 {
   "name": "dorbel-shared",
-  "version": "1.0.19",
+  "version": "1.0.26",
   "description": "Shared module for dorbel services",
   "main": "src/index.js",
   "scripts": {
     "release": "scripts/release.sh",
     "test": "yarn run test:unit",
-    "test:unit": "nyc --all mocha test/before-tests.js test/**/*.spec.js",
+    "test:unit": "nyc --all mocha --timeout 10000 test/before-tests.js test/**/*.spec.js",
     "lint": "eslint --ext .js -f table src",
     "watch": "yarn test -- -w"
   },
@@ -14,7 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "analytics-node": "^2.1.0",
-    "auth0": "^2.5.0",
+    "auth0": "2.5.0",
     "bluebird": "^3.4.6",
     "bunyan": "~1.8.1",
     "bunyan-sumologic": "^1.2.0",

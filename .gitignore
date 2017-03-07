@@ -3,6 +3,8 @@ node_modules
 *.orig
 **/.history
 .idea/
+.nyc_output/
+test/coverage/
 
 \.nyc_output/
 

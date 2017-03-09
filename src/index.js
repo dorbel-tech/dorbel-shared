@@ -18,6 +18,7 @@ module.exports = {
     analytics: require('./utils/analytics'),
     generic: require('./utils/generic'),
     serverRunner: require('./utils/serverRunner'),
-    cache: require('./helpers/cache')
+    cache: require('./helpers/cache'),
+    domainErrors: require('./utils/domainErrors')
   }
 };

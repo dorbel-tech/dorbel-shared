@@ -178,5 +178,4 @@ describe('Redis Cache Helper', function() {
       ));
     });
   });
-
 });

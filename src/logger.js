@@ -1,5 +1,4 @@
 'use strict';
-const config = require('./config');
 const bunyan = require('bunyan');
 const SumoLogger = require('bunyan-sumologic');
 const childLoggers = [];
@@ -7,7 +6,7 @@ const childLoggers = [];
 let _sumoLogicStream;
 
 function getLogger(callingModule) {
-  let logLevel = config.get('LOG_LEVEL') || 'info';
+  let logLevel = process.env.LOG_LEVEL || 'info';
   let callingFileName;
 
   if (callingModule) {
@@ -41,9 +40,9 @@ function getSumoLogicStream(logLevel) {
     return _sumoLogicStream;
   }
 
-  if (config.get('SUMOLOGIC_COLLECTOR')) {
+  if (process.env.SUMOLOGIC_COLLECTOR) {
     let sumoLogicConfig = {
-      collector: config.get('SUMOLOGIC_COLLECTOR'),
+      collector: process.env.SUMOLOGIC_COLLECTOR,
       endpoint: 'https://endpoint1.collection.eu.sumologic.com/receiver/v1/http/'
     };
 
@@ -65,10 +64,6 @@ function close() {
     return new Promise(resolve => slStream.stream.end(resolve));
   }
 }
-
-config.onKeyChange('LOG_LEVEL', change => {
-  childLoggers.forEach(logger => logger.level(change.newValue));
-});
 
 module.exports = {
   close,

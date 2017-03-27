@@ -5,7 +5,6 @@ describe('logger', function () {
   const mockRequire = require('mock-require');
   const sinon = require('sinon');
   const loggerModulePath = '../../src/logger';
-  const config = require('../../src/config');
 
   const Logger = require(loggerModulePath);
   const testLogger = Logger.getLogger(module);
@@ -13,6 +12,7 @@ describe('logger', function () {
   after(() => {
     // clear require cache because we are playing with the logger here and it's required everywhere
     delete require.cache[require.resolve(loggerModulePath)];
+    delete process.env.SUMOLOGIC_COLLECTOR;
   });
 
   describe('log levels', function() {
@@ -20,22 +20,10 @@ describe('logger', function () {
       __.assertThat(testLogger.level(), __.equalTo(bunyan.INFO));
     });
 
-    it('should change all log levels when configuration is updated', function() {
-      const configFolder = 'some/ConfigFolder';
-      mockFs({
-        [configFolder]: {
-          'common.json': JSON.stringify({ LOG_LEVEL: 'trace' })
-        }
-      });
-      config.setConfigFileFolder(configFolder);
-      __.assertThat(testLogger.level(), __.equalTo(bunyan.TRACE));
-      mockFs.restore();
-    });
-
     it('should wait for sumo logic stream when closing', function * () {
       const sandbox = sinon.sandbox.create();
       const endSpy = sandbox.spy(cb => cb());
-      sandbox.stub(config, 'get').withArgs('SUMOLOGIC_COLLECTOR').returns(true);
+      process.env.SUMOLOGIC_COLLECTOR = 'test';
       mockRequire('bunyan-sumologic', function () {
         return { end: endSpy };
       });

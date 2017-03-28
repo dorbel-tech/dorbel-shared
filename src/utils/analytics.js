@@ -1,7 +1,6 @@
 'use strict';
 const logger = require('../logger').getLogger(module);
-const config = require('../config');
-const key = config.get('SEGMENT_IO_WRITE_KEY');
+const key = process.env.SEGMENT_IO_WRITE_KEY;
 let analytics;
 
 if (key) {

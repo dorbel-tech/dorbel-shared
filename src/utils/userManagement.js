@@ -1,6 +1,5 @@
 // User details manipulation on auth0.
 'user strict';
-const config = require('../config');
 const logger = require('../logger').getLogger(module);
 const cache = require('../helpers/cache');
 const analytics = require('./analytics');
@@ -28,7 +27,7 @@ function updateUserDetails(user_uuid, userData) {
     .then(user => {
       if (user) {
         return getApiToken()
-          .then(token => { return new ManagementClient({ domain: config.get('AUTH0_DOMAIN'), token: token }); })
+          .then(token => { return new ManagementClient({ domain: process.env.AUTH0_DOMAIN, token: token }); })
           .then(auth0Client => {
             logger.debug({ auth0_user_id: user.user_id }, 'Starting auth0.updateUser');             
             return auth0Client.updateUser({ id: user.user_id }, userData)
@@ -59,7 +58,7 @@ function getUserDetails(user_uuid) {
         return JSON.parse(result);
       } else {
         return getApiToken()
-          .then(token => { return new ManagementClient({ domain: config.get('AUTH0_DOMAIN'), token: token }); })
+          .then(token => { return new ManagementClient({ domain: process.env.AUTH0_DOMAIN, token: token }); })
           .then(auth0Client => {
             logger.debug({ user_uuid }, 'Starting auth0.getUsers');             
             return auth0Client.getUsers({
@@ -108,17 +107,17 @@ function getPublicProfile(user_uuid) {
 
 function getApiToken() {
   logger.debug('Starting getApiToken');
-  if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
-  if (!config.get('AUTH0_API_CLIENT_ID')) { throw new Error('You need to define AUTH0_API_CLIENT_ID environment variable!'); }
-  if (!config.get('AUTH0_API_CLIENT_SECRET')) { throw new Error('You need to define AUTH0_API_CLIENT_SECRET environment variable!'); }
+  if (!process.env.AUTH0_DOMAIN) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
+  if (!process.env.AUTH0_API_CLIENT_ID) { throw new Error('You need to define AUTH0_API_CLIENT_ID environment variable!'); }
+  if (!process.env.AUTH0_API_CLIENT_SECRET) { throw new Error('You need to define AUTH0_API_CLIENT_SECRET environment variable!'); }
   const cacheKeyName = 'auth0_management_api_token';
-  const authDomain = 'https://' + config.get('AUTH0_DOMAIN');
+  const authDomain = 'https://' + process.env.AUTH0_DOMAIN;
   const options = {
     method: 'POST',
     url: authDomain + '/oauth/token',
     body: {
-      'client_id': config.get('AUTH0_API_CLIENT_ID'),
-      'client_secret': config.get('AUTH0_API_CLIENT_SECRET'),
+      'client_id': process.env.AUTH0_API_CLIENT_ID,
+      'client_secret': process.env.AUTH0_API_CLIENT_SECRET,
       'audience': authDomain + '/api/v2/',
       'grant_type': 'client_credentials'
     },
@@ -141,13 +140,13 @@ function getApiToken() {
 }
 
 function getProfileFromAuth0(idToken) {
-  if (!config.get('AUTH0_DOMAIN')) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
-  if (!config.get('AUTH0_FRONT_CLIENT_ID')) { throw new Error('You need to define AUTH0_FRONT_CLIENT_ID environment variable!'); }
+  if (!process.env.AUTH0_DOMAIN) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
+  if (!process.env.AUTH0_FRONT_CLIENT_ID) { throw new Error('You need to define AUTH0_FRONT_CLIENT_ID environment variable!'); }
 
   // AuthenticationClient is per-user and must be initialized every time
   const client = new AuthenticationClient({
-    domain: config.get('AUTH0_DOMAIN'),
-    clientId: config.get('AUTH0_FRONT_CLIENT_ID')
+    domain: process.env.AUTH0_DOMAIN,
+    clientId: process.env.AUTH0_FRONT_CLIENT_ID
   });
 
   return promisify(client.tokens.getInfo, client.tokens)(idToken);

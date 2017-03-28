@@ -1,6 +1,6 @@
 {
   "name": "dorbel-shared",
-  "version": "1.0.27",
+  "version": "1.0.29",
   "description": "Shared module for dorbel services",
   "main": "src/index.js",
   "scripts": {
@@ -19,11 +19,11 @@
     "bunyan": "~1.8.1",
     "bunyan-sumologic": "^1.2.0",
     "co": "^4.6.0",
+    "dotenv": "^4.0.0",
     "es6-promisify": "^5.0.0",
     "jwt-decode": "^2.1.0",
     "lodash": "~4.16.3",
     "mock-require": "^2.0.1",
-    "nconf": "~0.8.4",
     "newrelic": "1.31.0",
     "nyc": "^10.1.2",
     "redis": "^2.6.3",

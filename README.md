@@ -23,9 +23,9 @@ logger.info({ userId: user.id, apartmentId: apartment.id }, 'added apartment');
 - bunyan logs in JSON format. For human readable logs start your application using ``yarn start | bunyan``
 ### Config
 ```js
-// Config folder should hold json files with environment names (e.g. development.json)
-shared.config.setConfigFileFolder(__dirname + '/config');
-shared.config.get('CONFIG_KEY_NAME');
+// Config is handled by dotenv module and should be put in project root .env file.
+// Access config env vars in the following way:
+process.env.CONFIG_KEY_NAME;
 ```
 
 ## Koa middleware

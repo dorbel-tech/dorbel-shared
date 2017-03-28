@@ -23,11 +23,7 @@ describe('Redis Cache Helper', function() {
       createClient: sinon.stub().returns(this.redisClientMock),
     };
     mockRequire('redis', this.redisModuleMock);
-
-    this.configMock = {
-      get: sinon.stub().returns('123')
-    };
-    mockRequire('../../src/config', this.configMock);
+    process.env.REDIS_HOST = 'test';
 
     this.cache = mockRequire.reRequire('../../src/helpers/cache');
   }
@@ -46,7 +42,10 @@ describe('Redis Cache Helper', function() {
     });
   }
 
-  after(() => mockRequire.stopAll());
+  after(() => {
+    mockRequire.stopAll();
+    delete process.env.REDIS_HOST;
+  });
 
   afterEach(() => sinon.reset());
 

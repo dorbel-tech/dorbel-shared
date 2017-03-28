@@ -1,8 +1,8 @@
 'use strict';
+require('dotenv').config();
 require('./utils/newrelic').init();
 
 module.exports = {
-  config: require('./config'),
   logger: require('./logger'),
   middleware: {
     requestLogger: require('./koa-middleware/request-logger'),

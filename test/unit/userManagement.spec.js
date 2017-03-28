@@ -4,8 +4,6 @@ const sinon = require('sinon');
 const mockRequire = require('mock-require');
 const src = '../../src/';
 
-const config = require(src + 'config');
-
 describe('user management', function () {
   let userManagement;
 
@@ -30,15 +28,16 @@ describe('user management', function () {
     mockRequire('jwt-decode', () => this.decodedTokenMock);
     mockRequire('moment', () => this.momentMock);
 
-    const configMock = sinon.stub(config, 'get');
-    configMock.withArgs('AUTH0_DOMAIN').returns(true);
-    configMock.withArgs('AUTH0_FRONT_CLIENT_ID').returns(true);
+    process.env.AUTH0_DOMAIN = 'test';
+    process.env.AUTH0_FRONT_CLIENT_ID = 'test';
 
     userManagement = require('../../src/utils/userManagement');
   });
 
   after(function () {
     mockRequire.stopAll();
+    delete process.env.AUTH0_DOMAIN;
+    delete process.env.AUTH0_FRONT_CLIENT_ID;
   });
 
   describe('parse auth token', function () {

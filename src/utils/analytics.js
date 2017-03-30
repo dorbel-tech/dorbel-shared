@@ -32,11 +32,13 @@ function mapAuth0UserToSegmentUser(auth0user) {
     userId: auth0user.app_metadata.dorbel_user_id,
     traits: { // https://segment.com/docs/spec/identify/#traits
       email: user_metadata.email || auth0user.email,
-      firstName: user_metadata.first_name || auth0user.given_name,
-      lastName: user_metadata.last_name || auth0user.family_name,
+      first_name: user_metadata.first_name || auth0user.given_name,
+      last_name: user_metadata.last_name || auth0user.family_name,
       phone: user_metadata.phone,
       avatar: auth0user.picture,
-      createdAt: auth0user.created_at
+      created_at: auth0user.created_at,
+      timezone: 'Asia/Jerusalem',
+      environment: process.env.NODE_ENV
     }
   };
 }

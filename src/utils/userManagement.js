@@ -35,6 +35,7 @@ function updateUserDetails(user_uuid, userData) {
                 logger.info({ user_uuid: response.app_metadata.dorbel_user_id }, 'Succesfully updated auth0 user details');
                 cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
                 analytics.identify(response);
+                return response;
               });
           });
       } else {

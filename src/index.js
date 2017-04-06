@@ -11,6 +11,9 @@ module.exports = {
     authenticate: require('./koa-middleware/authentication'),
     optionalAuthenticate: require('./koa-middleware/optionalAuthentication'),
   },
+  helpers: {
+    headers: require('./helpers/headers')
+  },
   utils: {
     waitForConnection: require('./utils/waitForConnection'),
     messageBus: require('./utils/messageBus'),

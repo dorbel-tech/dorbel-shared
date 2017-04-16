@@ -1,6 +1,6 @@
 {
   "name": "dorbel-shared",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "description": "Shared module for dorbel services",
   "main": "src/index.js",
   "scripts": {
@@ -24,11 +24,11 @@
     "jwt-decode": "^2.1.0",
     "lodash": "~4.16.3",
     "mock-require": "^2.0.1",
-    "newrelic": "1.31.0",
+    "newrelic": "^1.38.2",
     "nyc": "^10.1.2",
     "redis": "^2.6.3",
-    "request": "^2.79.0",
-    "request-promise": "^4.1.1",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.0",
     "sinon-as-promised": "^4.0.2",
     "sns.js": "1.0.2",
     "sqs-consumer": "3.4.0",

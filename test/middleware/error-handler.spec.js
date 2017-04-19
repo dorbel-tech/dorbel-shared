@@ -53,8 +53,8 @@ describe('middleware - error-handler', function () {
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
-      __.hasProperties({ err: error }),
-      __.is('Server Error')
+      __.hasProperties({ stack: error.stack }),
+      __.is(error.message)
     ));
   });
 
@@ -67,8 +67,8 @@ describe('middleware - error-handler', function () {
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
-      __.hasProperties({ err: error }),
-      __.is('Server Error')
+      __.hasProperties({ stack: error.stack }),
+      __.is(error.message)
     ));
   });
 
@@ -86,7 +86,7 @@ describe('middleware - error-handler', function () {
     };
 
     yield middleware.bind(context)(next);
-    __.assertThat(loggerMock.error.args[0][0], __.hasProperties({ requestId, err: error }));
+    __.assertThat(loggerMock.error.args[0][0], __.hasProperties({ stack: error.stack, requestId }));
   });
 
 });

@@ -99,7 +99,8 @@ function getPublicProfile(user_uuid) {
     };
 
     if (!publicProfile.tenant_profile && _.get(user, 'identities[0].provider') === 'facebook') {
-      publicProfile.facebook_url = user.link;
+      publicProfile.tenant_profile = {}
+      publicProfile.tenant_profile.facebook_url = user.link;
     }
 
     return publicProfile;

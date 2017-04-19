@@ -98,7 +98,7 @@ function getPublicProfile(user_uuid) {
       tenant_profile: _.get(user, 'user_metadata.tenant_profile'),
     };
 
-    if (!user.tenant_profile && _.get(user, 'identities[0].provider') === 'facebook') {
+    if (!publicProfile.tenant_profile && _.get(user, 'identities[0].provider') === 'facebook') {
       publicProfile.facebook_url = user.link;
     }
 

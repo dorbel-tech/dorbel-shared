@@ -17,7 +17,9 @@ function getMiddleWare() {
       if (newrelic) {  newrelic.noticeError(err); }
 
       const requestId = this.request.headers['x-request-id'];
+      
       let headers = undefined;
+      // TODO: Added to debug, remove once resolved.
       if (err.message === 'The header content contains invalid characters') {
         headers = this.request.headers;
       }

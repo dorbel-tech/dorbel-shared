@@ -95,11 +95,11 @@ function getPublicProfile(user_uuid) {
       last_name: _.get(user, 'user_metadata.last_name') || user.family_name,
       phone: _.get(user, 'user_metadata.phone'),
       picture: user.picture,
-      tenant_profile: _.get(user, 'user_metadata.tenant_profile'),
+      tenant_profile: _.get(user, 'user_metadata.tenant_profile')
     };
 
     if (!publicProfile.tenant_profile && _.get(user, 'identities[0].provider') === 'facebook') {
-      publicProfile.tenant_profile = {}
+      publicProfile.tenant_profile = {};
       publicProfile.tenant_profile.facebook_url = user.link;
     }
 

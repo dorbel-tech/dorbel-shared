@@ -4,7 +4,6 @@ const throng = require('throng');
 const gracefulShutdown = require('./gracefulShutdown');
 const Logger = require('../logger');
 const logger = Logger.getLogger(module);
-const newrelic = require('./newrelic');
 const runCluster = (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging');
 
 function start(startServerFunc, id) {
@@ -22,7 +21,6 @@ function handleProcessErrors(server) {
     Promise.all([
       graceful.shutdown(),
       Logger.close(),
-      newrelic.crashClose()
     ])
     .catch(() => {}) // ignore errors thrown here
     .then(() => process.exit(-1));

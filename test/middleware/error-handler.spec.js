@@ -4,19 +4,15 @@ const sinon = require('sinon');
 const mockRequire = require('mock-require');
 
 describe('middleware - error-handler', function () {
-  let newRelicMock, appMock, loggerMock, middleware;
+  let appMock, loggerMock, middleware;
 
   before(function() {
-    newRelicMock = {
-      noticeError: sinon.spy()
-    };
     appMock = {
       emit: sinon.spy()
     };
     loggerMock = {
       error: sinon.spy()
     };
-    mockRequire('../../src/utils/newrelic', { init: () => newRelicMock });
     mockRequire('../../src/logger', { getLogger: () => loggerMock });
     middleware = mockRequire.reRequire('../../src/koa-middleware/error-handler')();
   });
@@ -51,7 +47,6 @@ describe('middleware - error-handler', function () {
     __.assertThat(context.body, __.is(error.message));
     __.assertThat(context.status, __.is(error.status));
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
-    __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
       __.hasProperties({ stack: error.stack }),
       __.is(error.message)
@@ -65,7 +60,6 @@ describe('middleware - error-handler', function () {
     __.assertThat(context.body, __.is(error.message));
     __.assertThat(context.status, __.is(500));
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
-    __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
       __.hasProperties({ stack: error.stack }),
       __.is(error.message)

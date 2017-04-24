@@ -1,6 +1,5 @@
 'use strict';
 require('dotenv').config();
-require('./utils/newrelic').init();
 
 module.exports = {
   logger: require('./logger'),

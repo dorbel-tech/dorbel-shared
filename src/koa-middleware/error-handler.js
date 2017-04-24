@@ -3,7 +3,6 @@
 'use strict';
 
 function getMiddleWare() {
-  const newrelic = require('../utils/newrelic').init();
   const logger = require('../logger').getLogger(module);
 
   return function* (next) {
@@ -14,7 +13,6 @@ function getMiddleWare() {
       this.body = err.message;
 
       this.app.emit('error', err, this);
-      if (newrelic) {  newrelic.noticeError(err); }
 
       const requestId = this.request.headers['x-request-id'];
       

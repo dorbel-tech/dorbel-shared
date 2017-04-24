@@ -35,9 +35,6 @@ describe('server runner', function() {
       getLogger: () => this.mockLogger,
       close: this.loggerClose
     });
-    mockRequire('../../src/utils/newrelic', { 
-      crashClose: this.sinon.stub().returns(Promise.resolve())
-    });
     this.processExit = this.sinon.stub(process, 'exit');
 
     this.mochaListeners = process.listeners('uncaughtException');

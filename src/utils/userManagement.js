@@ -196,6 +196,7 @@ function* parseAuthToken(next) {
 
   if (profile) {
     // Add profile to request headers. This request is proxied to the backend APIS
+    // IMPORANT!!! Please make sure not to add here any data here that is not plain ASCII, like user name, etc..
     this.request.headers[userHeaderKey] = JSON.stringify({
       id: profile.dorbel_user_id,
       email: profile.email,

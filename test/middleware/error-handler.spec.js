@@ -45,7 +45,7 @@ describe('middleware - error-handler', function () {
   });
 
   it('should stop flow if error is thrown', function * () {
-    const error = { status: 980, message: 'bad request', stack: 'my stack' };
+    const error = { status: 980, message: 'bad request' };
     const next = sinon.stub().throws(error);
     const context = yield handleErrors(next);
     __.assertThat(context.body, __.is(error.message));
@@ -53,7 +53,7 @@ describe('middleware - error-handler', function () {
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
-      __.hasProperties({ stack: error.stack }),
+      __.hasProperties({ err: error }),
       __.is(error.message)
     ));
   });
@@ -67,7 +67,7 @@ describe('middleware - error-handler', function () {
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
-      __.hasProperties({ stack: error.stack }),
+      __.hasProperties({ err: error }),
       __.is(error.message)
     ));
   });
@@ -86,7 +86,7 @@ describe('middleware - error-handler', function () {
     };
 
     yield middleware.bind(context)(next);
-    __.assertThat(loggerMock.error.args[0][0], __.hasProperties({ stack: error.stack, requestId }));
+    __.assertThat(loggerMock.error.args[0][0], __.hasProperties({ err: error, requestId }));
   });
 
 });

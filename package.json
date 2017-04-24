@@ -1,57 +1,31 @@
 {
-  "name": "dorbel-shared",
-  "version": "1.0.36",
-  "description": "Shared module for dorbel services",
-  "main": "src/index.js",
-  "scripts": {
-    "release": "scripts/release.sh",
-    "test": "yarn run test:unit",
-    "test:unit": "nyc --all mocha --timeout 10000 test/before-tests.js test/**/*.spec.js",
-    "lint": "eslint --ext .js -f table src",
-    "watch": "yarn test -- -w"
+  "application": "front-gateway",
+  "name": "error-handler.js",
+  "hostname": "50121f4f23da",
+  "pid": 36,
+  "level": "ERROR",
+  "stack": "TypeError: The header content contains invalid characters\n    at ClientRequest.OutgoingMessage.setHeader (_http_outgoing.js:358:11)\n    at new ClientRequest (_http_client.js:86:14)\n    at Object.exports.request (http.js:31:10)\n    at makeRequest (/home/nodejs/app/node_modules/newrelic/lib/instrumentation/core/http.js:431:31)\n    at instrumentRequest (/home/nodejs/app/node_modules/newrelic/lib/transaction/tracer/instrumentation/outbound.js:32:19)\n    at wrapped (/home/nodejs/app/node_modules/newrelic/lib/transaction/tracer/index.js:184:28)\n    at Tracer.addSegment (/home/nodejs/app/node_modules/newrelic/lib/transaction/tracer/index.js:83:48)\n    at instrumentOutbound (/home/nodejs/app/node_modules/newrelic/lib/transaction/tracer/instrumentation/outbound.js:22:23)\n    at Object.wrappedRequest [as request] (/home/nodejs/app/node_modules/newrelic/lib/instrumentation/core/http.js:425:14)\n    at Request.start (/home/nodejs/app/node_modules/request/request.js:755:32)\n    at Request.end (/home/nodejs/app/node_modules/request/request.js:1525:10)\n    at IncomingMessage.onend (_stream_readable.js:511:10)\n    at IncomingMessage.g (events.js:291:16)\n    at emitNone (events.js:86:13)\n    at IncomingMessage.emit (events.js:185:7)\n    at IncomingMessage.wrapped (/home/nodejs/app/node_modules/newrelic/lib/transaction/tracer/index.js:184:28)\n    at IncomingMessage.wrappedEmit [as emit] (/home/nodejs/app/node_modules/newrelic/lib/transaction/tracer/index.js:221:46)\n    at endReadableNT (_stream_readable.js:974:12)\n    at wrapped (/home/nodejs/app/node_modules/newrelic/lib/transaction/tracer/index.js:184:28)\n    at _combinedTickCallback (internal/process/next_tick.js:74:11)\n    at process._tickDomainCallback [as _tickCallback] (internal/process/next_tick.js:122:9)",
+  "method": "GET",
+  "path": "/api/ohe/v1/events/by-listing/236",
+  "statusCode": 500,
+  "requestId": "70cd05ac-94f9-40fc-b4a6-55f0089dcab5",
+  "headers": {
+    "host": "ohe-api-prod.eu-west-1.elasticbeanstalk.com",
+    "x-real-ip": "172.30.0.248",
+    "x-forwarded-for": "185.120.124.60, 172.30.0.248",
+    "accept": "application/json",
+    "accept-encoding": "gzip, deflate, sdch, br",
+    "accept-language": "he-IL,he;q=0.8,en-US;q=0.6,en;q=0.4",
+    "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2RvcmJlbC5ldS5hdXRoMC5jb20vIiwic3ViIjoiZmFjZWJvb2t8MTY4MjMxNzQ3MDM0Nzk2IiwiYXVkIjoiVXl1UHBFNHpvNHNVVGNEWXJHUXJ0VFJZNWVRSEhVTG0iLCJleHAiOjE0OTMwNTUxNTIsImlhdCI6MTQ5MzAxOTE1Mn0.7qD8xgBtid3DWfwAAkffxpSQ42dZBTRFi9Qss-fvVes",
+    "cookie": "ajs_anonymous_id=%22f0c8397b-d21f-4873-811a-698c117fc88f%22; _gat=1; _cio=a0ca4bab-7310-f70d-fda8-ea2f264b62f2; intercom-id-cf63n1sr=59b8e480-e12e-41e0-a832-1f8501f7ae9b; ajs_group_id=null; _ga=GA1.2.237458328.1493019101; id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2RvcmJlbC5ldS5hdXRoMC5jb20vIiwic3ViIjoiZmFjZWJvb2t8MTY4MjMxNzQ3MDM0Nzk2IiwiYXVkIjoiVXl1UHBFNHpvNHNVVGNEWXJHUXJ0VFJZNWVRSEhVTG0iLCJleHAiOjE0OTMwNTUxNTIsImlhdCI6MTQ5MzAxOTE1Mn0.7qD8xgBtid3DWfwAAkffxpSQ42dZBTRFi9Qss-fvVes; ajs_user_id=%22e6f4b647-7ed9-4234-87d1-257d8cdf9b9f%22; _cioid=e6f4b647-7ed9-4234-87d1-257d8cdf9b9f; _hp2_ses_props.3212291351=%7B%22r%22%3A%22https%3A%2F%2Fwww.google.co.il%2F%22%2C%22ts%22%3A1493019101525%2C%22d%22%3A%22app.dorbel.com%22%2C%22h%22%3A%22%2Fapartments%22%7D; _hp2_id.3212291351=%7B%22userId%22%3A%228923499257017089%22%2C%22pageviewId%22%3A%225291918601582941%22%2C%22sessionId%22%3A%220039911823863020%22%2C%22identity%22%3A%22e6f4b647-7ed9-4234-87d1-257d8cdf9b9f%22%2C%22trackerVersion%22%3A%223.0%22%7D; mp_1bcff89257d8195f0ccbd8151dc0edf0_mixpanel=%7B%22distinct_id%22%3A%20%22e6f4b647-7ed9-4234-87d1-257d8cdf9b9f%22%2C%22mp_lib%22%3A%20%22Segment%3A%20web%22%2C%22%24search_engine%22%3A%20%22google%22%2C%22%24initial_referrer%22%3A%20%22https%3A%2F%2Fwww.google.co.il%2F%22%2C%22%24initial_referring_domain%22%3A%20%22www.google.co.il%22%2C%22mp_name_tag%22%3A%20%22e6f4b647-7ed9-4234-87d1-257d8cdf9b9f%22%2C%22given_name%22%3A%20%22%D7%93%D7%91%D7%95%D7%A8%D7%99%22%2C%22family_name%22%3A%20%22%D7%99%D7%A9%D7%95%D7%A8%D7%95%D7%9F%22%2C%22gender%22%3A%20%22female%22%2C%22picture%22%3A%20%22https%3A%2F%2Fscontent.xx.fbcdn.net%2Fv%2Ft1.0-1%2Fc15.0.50.50%2Fp50x50%2F1379841_10150004552801901_469209496895221757_n.jpg%3Foh%3Dd9f13139f45ec1c9d1e05a32d1c897eb%26oe%3D597AC533%22%2C%22picture_large%22%3A%20%22https%3A%2F%2Fscontent.xx.fbcdn.net%2Fv%2Ft31.0-1%2F1402926_10150004552801901_469209496895221757_o.jpg%3Foh%3Dc5bc74188ec2f51499f01ffb25c4345e%26oe%3D5989714F%22%2C%22age_range%22%3A%20%7B%22min%22%3A%2021%7D%2C%22context%22%3A%20%7B%22mutual_likes%22%3A%20%7B%22data%22%3A%20%5B%5D%2C%22summary%22%3A%20%7B%22total_count%22%3A%200%7D%7D%2C%22id%22%3A%20%22dXNlcl9jb250ZAXh0OgGQiXCbMPF7kqlH83rnM8NFKFbcuVG1rt3Fc27mPMXovggk9R64ZAoqyEtvyZC4FKcl2sOvBCwrTz0ZAhQPemgtAZAa8JmqxwG8dXOS01j6RnDxPyMZD%22%7D%2C%22updated_time%22%3A%20%222017-04-24T00%3A39%3A43.000Z%22%2C%22installed%22%3A%20true%2C%22is_verified%22%3A%20false%2C%22link%22%3A%20%22https%3A%2F%2Fwww.facebook.com%2Fapp_scoped_user_id%2F168231747034796%2F%22%2C%22locale%22%3A%20%22he_IL%22%2C%22name_format%22%3A%20%22%7Bfirst%7D%20%7Blast%7D%22%2C%22timezone%22%3A%203%2C%22third_party_id%22%3A%20%22_HPYyiLgi-xVmdhioUdINtfgesg%22%2C%22verified%22%3A%20true%2C%22nickname%22%3A%20%22%D7%93%D7%91%D7%95%D7%A8%D7%99%20%D7%99%D7%A9%D7%95%D7%A8%D7%95%D7%9F%22%2C%22app_metadata%22%3A%20%7B%22dorbel_user_id%22%3A%20%22e6f4b647-7ed9-4234-87d1-257d8cdf9b9f%22%2C%22role%22%3A%20%22user%22%7D%2C%22email_verified%22%3A%20true%2C%22clientID%22%3A%20%22UyuPpE4zo4sUTcDYrGQrtTRY5eQHHULm%22%2C%22updated_at%22%3A%20%222017-04-24T07%3A32%3A31.996Z%22%2C%22user_id%22%3A%20%22facebook%7C168231747034796%22%2C%22identities%22%3A%20%5B%0A%20%20%20%20%7B%22provider%22%3A%20%22facebook%22%2C%22user_id%22%3A%20%22168231747034796%22%2C%22connection%22%3A%20%22facebook%22%2C%22isSocial%22%3A%20true%7D%0A%5D%2C%22global_client_id%22%3A%20%22cSt9hmWowPu0l2hqjOHRScIm5GFzKpoM%22%2C%22dorbel_user_id%22%3A%20%22e6f4b647-7ed9-4234-87d1-257d8cdf9b9f%22%2C%22role%22%3A%20%22user%22%2C%22first_name%22%3A%20%22%D7%93%D7%91%D7%95%D7%A8%D7%99%22%2C%22last_name%22%3A%20%22%D7%99%D7%A9%D7%95%D7%A8%D7%95%D7%9F%22%2C%22id%22%3A%20%22e6f4b647-7ed9-4234-87d1-257d8cdf9b9f%22%2C%22%24created%22%3A%20%222017-04-24T07%3A32%3A31.996Z%22%2C%22%24first_name%22%3A%20%22%D7%93%D7%91%D7%95%D7%A8%D7%99%22%2C%22%24last_name%22%3A%20%22%D7%99%D7%A9%D7%95%D7%A8%D7%95%D7%9F%22%2C%22%24name%22%3A%20%22%D7%93%D7%91%D7%95%D7%A8%D7%99%20%D7%99%D7%A9%D7%95%D7%A8%D7%95%D7%9F%22%7D; mp_mixpanel__c=0",
+    "referer": "https://app.dorbel.com/apartments/236",
+    "user-agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https",
+    "x-request-id": "70cd05ac-94f9-40fc-b4a6-55f0089dcab5",
+    "x-user-profile": "{\"id\":\"e6f4b647-7ed9-4234-87d1-257d8cdf9b9f\",\"name\":\"דבורי ישורון\",\"role\":\"user\"}"
   },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "analytics-node": "^2.1.0",
-    "auth0": "2.5.0",
-    "bluebird": "^3.4.6",
-    "bunyan": "~1.8.1",
-    "bunyan-sumologic": "^1.2.0",
-    "co": "^4.6.0",
-    "dotenv": "^4.0.0",
-    "es6-promisify": "^5.0.0",
-    "jwt-decode": "^2.1.0",
-    "lodash": "~4.16.3",
-    "mock-require": "^2.0.1",
-    "newrelic": "^1.38.2",
-    "nyc": "^10.1.2",
-    "redis": "^2.6.3",
-    "request": "^2.81.0",
-    "request-promise": "^4.2.0",
-    "sinon-as-promised": "^4.0.2",
-    "sns.js": "1.0.2",
-    "sqs-consumer": "3.4.0",
-    "swagger-model-validator": "~2.1.2",
-    "throng": "^4.0.0",
-    "uuid": "^3.0.1"
-  },
-  "devDependencies": {
-    "co-mocha": "~1.1.3",
-    "eslint": "~3.7.1",
-    "hamjest": "~2.13.0",
-    "mocha": "~3.1.0",
-    "mock-fs": "^3.12.1",
-    "sinon": "^1.17.6"
-  },
-  "nyc": {
-    "reporter": [
-      "text-summary",
-      "json"
-    ],
-    "include": [
-      "src/**/*.{js}"
-    ],
-    "report-dir": "./test/coverage"
-  }
+  "msg": "The header content contains invalid characters",
+  "time": "2017-04-24T07:32:34.806Z",
+  "v": 0
 }

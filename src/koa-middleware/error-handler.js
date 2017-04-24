@@ -25,7 +25,7 @@ function getMiddleWare() {
       }
 
       logger.error({
-        stack: err.stack,
+        err,
         method: this.method,
         path: this.url,
         statusCode: this.status,

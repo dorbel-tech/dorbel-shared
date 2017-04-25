@@ -59,13 +59,13 @@ describe('user management', function () {
     }
 
     it('should return token value from cache', function* () {
-      const cachedValue = { name: 'Donald J. Trump' };
+      const cachedValue = {};
       this.cacheMock.getKey.resolves(JSON.stringify(cachedValue));
       yield parseAndCompare('Bearer 123', cachedValue);
     });
 
     it('should return value from auth0 if not in cache', function* () {
-      const auth0Value = { name: 'Barack Obama' };
+      const auth0Value = {};
 
       this.cacheMock.getKey.resolves(false);
       this.authenticationClientMock.tokens = {
@@ -78,7 +78,7 @@ describe('user management', function () {
     it('should set cache with token key with response from auth0', function* () {
       const tokenExpirationTime = 15;
       const tokenTTL = tokenExpirationTime - this.currentUnixTime;
-      const auth0Value = { name: 'John F. Kennedy' };
+      const auth0Value = {};
       const token = '123';
 
       this.cacheMock.setKey.reset();

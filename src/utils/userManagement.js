@@ -199,7 +199,6 @@ function* parseAuthToken(next) {
     // IMPORANT!!! Please make sure not to add here any data here that is not plain ASCII, like user name, etc..
     this.request.headers[userHeaderKey] = JSON.stringify({
       id: profile.dorbel_user_id,
-      email: profile.email,
       role: _.get(profile, 'app_metadata.role')
     });
   }

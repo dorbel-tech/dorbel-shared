@@ -52,7 +52,7 @@ describe('user management', function () {
       this.cacheMock.getKey.resolves('cached api key');
 
       yield userManagement.getUserDetailsByEmail(email);
-      __.assertThat(this.managmentClientMock.getUsers.args[0][0], __.hasProperty('q', 'email:' + email));
+      __.assertThat(this.managmentClientMock.getUsers.args[0][0], __.hasProperty('q', 'email:"a@a.com"'));
     });
 
     it('should return first user in response', function * () {

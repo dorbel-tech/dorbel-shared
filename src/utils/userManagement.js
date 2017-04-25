@@ -84,7 +84,9 @@ function getUserDetailsByEmail(email) {
 }
 
 function getUserDetailsFromAuth0(query) {
-  let queryPairs = Object.keys(query).map(key => `${key}:${query[key]}`);
+  // the query should be in Apache Lucene format https://lucene.apache.org/core/2_9_4/queryparsersyntax.html#AND
+  const queryPairs = Object.keys(query).map(key => `${key}:"${query[key]}"`);
+  const q = queryPairs.join(' AND ');
 
   return getApiToken()
   .then(token => { return new ManagementClient({ domain: process.env.AUTH0_DOMAIN, token }); })
@@ -92,7 +94,7 @@ function getUserDetailsFromAuth0(query) {
     logger.trace(query, 'Starting auth0.getUsers');
     return auth0Client.getUsers({
       fields: 'user_id,name,email,user_metadata,app_metadata,picture,link,identities,given_name,family_name', // User details field names to get from API.
-      q: queryPairs.join('&')
+      q
     });
   })
   .then(user => {

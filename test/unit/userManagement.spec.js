@@ -10,13 +10,17 @@ describe('user management', function () {
   before(function () {
     this.authenticationClientMock = {};
     this.decodedTokenMock = {};
+    this.managmentClientMock = {
+      getUsers: sinon.stub()
+    };
     this.cacheMock = {
       getKey: sinon.stub(),
       setKey: sinon.stub(),
       setHashKey: sinon.stub()
     };
     this.auth0mock = {
-      AuthenticationClient: sinon.stub().returns(this.authenticationClientMock)
+      AuthenticationClient: sinon.stub().returns(this.authenticationClientMock),
+      ManagementClient: sinon.stub().returns(this.managmentClientMock)
     };
     this.currentUnixTime = 10;
     this.momentMock = {
@@ -30,6 +34,8 @@ describe('user management', function () {
 
     process.env.AUTH0_DOMAIN = 'test';
     process.env.AUTH0_FRONT_CLIENT_ID = 'test';
+    process.env.AUTH0_API_CLIENT_ID = 'test';
+    process.env.AUTH0_API_CLIENT_SECRET = 'test';
 
     userManagement = require('../../src/utils/userManagement');
   });
@@ -38,6 +44,28 @@ describe('user management', function () {
     mockRequire.stopAll();
     delete process.env.AUTH0_DOMAIN;
     delete process.env.AUTH0_FRONT_CLIENT_ID;
+  });
+
+  describe('get user by email', function () {
+    it('should send correct query to auth0 api', function * () {
+      const email = 'a@a.com';
+      this.cacheMock.getKey.resolves('cached api key');
+
+      yield userManagement.getUserDetailsByEmail(email);
+      __.assertThat(this.managmentClientMock.getUsers.args[0][0], __.hasProperty('q', 'email:' + email));
+    });
+
+    it('should return first user in response', function * () {
+      this.managmentClientMock.getUsers.resolves([ 'userOne', 'userTwo' ]);
+      const user = yield userManagement.getUserDetailsByEmail('b@b.com');
+      __.assertThat(user, __.equalTo('userOne'));
+    });
+
+    it('should not return anything if no response', function * () {
+      this.managmentClientMock.getUsers.resolves();
+      const user = yield userManagement.getUserDetailsByEmail('c@c.om');
+      __.assertThat(user, __.is(__.undefined()));
+    });
   });
 
   describe('parse auth token', function () {

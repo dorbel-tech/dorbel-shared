@@ -26,6 +26,7 @@ function updateUserDetails(user_uuid, userData) {
   return getUserDetails(user_uuid)
     .then(user => {
       if (user) {
+        Object.assign(user, userData);
         return getApiToken()
           .then(token => { return new ManagementClient({ domain: process.env.AUTH0_DOMAIN, token: token }); })
           .then(auth0Client => {

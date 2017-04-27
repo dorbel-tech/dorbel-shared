@@ -116,6 +116,10 @@ function getPublicProfileByEmail(email) {
 }
 
 function normalizePublicProfile(user) {
+  if (!user) {
+    return;
+  }
+
   const publicProfile = {
     email: _.get(user, 'user_metadata.email') || user.email,
     first_name: _.get(user, 'user_metadata.first_name') || user.given_name,

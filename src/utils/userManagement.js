@@ -120,6 +120,10 @@ function normalizePublicProfile(user) {
     return;
   }
 
+  // Important: If you change this code, something might break.
+  // Please make sure it's compatible with the mapping in front-gateway/providers/auth/auth0Helper.mapAuth0Profile
+  // (similar comment there too)
+
   const publicProfile = {
     email: _.get(user, 'user_metadata.email') || user.email,
     first_name: _.get(user, 'user_metadata.first_name') || user.given_name,

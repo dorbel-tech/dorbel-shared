@@ -29,7 +29,7 @@ function updateUserDetails(user_uuid, userData) {
         return getApiToken()
           .then(token => { return new ManagementClient({ domain: process.env.AUTH0_DOMAIN, token: token }); })
           .then(auth0Client => {
-            logger.debug({ auth0_user_id: user.user_id }, 'Starting auth0.updateUser');             
+            logger.debug({ auth0_user_id: user.user_id }, 'Starting auth0.updateUser');
             return auth0Client.updateUser({ id: user.user_id }, userData)
               .then(response => {
                 logger.info({ user_uuid: response.app_metadata.dorbel_user_id }, 'Succesfully updated auth0 user details');
@@ -48,38 +48,59 @@ function updateUserDetails(user_uuid, userData) {
 // Get user details by user uuid from Management API or Cache.
 function getUserDetails(user_uuid) {
   logger.debug({ user_uuid }, 'Starting getUserDetails');
-  
+
   if (!user_uuid) {
     throw new Error('Cant get user details. Supplied user_uuid was undefined!');
   }
 
   return cache.getHashKey(userCacheKeyName, user_uuid)
-    .then(result => {
-      if (result) {
-        return JSON.parse(result);
-      } else {
-        return getApiToken()
-          .then(token => { return new ManagementClient({ domain: process.env.AUTH0_DOMAIN, token: token }); })
-          .then(auth0Client => {
-            logger.debug({ user_uuid }, 'Starting auth0.getUsers');             
-            return auth0Client.getUsers({
-              fields: 'user_id,name,email,user_metadata,app_metadata,picture,link,identities,given_name,family_name', // User details field names to get from API.
-              q: 'app_metadata.dorbel_user_id: ' + user_uuid // Query to get users by app metadata dorbel user id.
-            });
-          })
-          .then(user => {
-            logger.debug({ user_uuid, user }, 'Got user details from auth0.getUsers');             
-            let flatUser = user[0]; // Removing hierarchy as got only one user.
-            if (flatUser) {
-              cache.setHashKey(userCacheKeyName, user_uuid, JSON.stringify(flatUser));
-              logger.debug({ user_uuid }, 'Got user info from Management API by uuid.');
-            } else {
-              logger.warn({ user_uuid }, 'Did not get user details from auth0');
-            }
-            return flatUser;
-          });
+  .then(result => {
+    if (result) {
+      return JSON.parse(result);
+    }
+
+    return getUserDetailsFromAuth0({
+      'app_metadata.dorbel_user_id': user_uuid // Query to get users by app metadata dorbel user id.
+    })
+    .then(user => {
+      if (user) {
+        cache.setHashKey(userCacheKeyName, user_uuid, JSON.stringify(user));
+        logger.debug({ user_uuid }, 'Got user info from Management API by uuid.');
+        return user;
       }
+
+      logger.warn({ user_uuid }, 'Did not get user details from auth0');
     });
+  });
+}
+
+function getUserDetailsByEmail(email) {
+  logger.trace({ email }, 'getting user details by email');
+  if (!email) {
+    throw new Error('Cant get user details. Supplied email was undefined!');
+  }
+
+  return getUserDetailsFromAuth0({ email });
+}
+
+function getUserDetailsFromAuth0(query) {
+  // the query should be in Apache Lucene format https://lucene.apache.org/core/2_9_4/queryparsersyntax.html#AND
+  const queryPairs = Object.keys(query).map(key => `${key}:"${query[key]}"`);
+  const q = queryPairs.join(' AND ');
+
+  return getApiToken()
+  .then(token => { return new ManagementClient({ domain: process.env.AUTH0_DOMAIN, token }); })
+  .then(auth0Client => {
+    logger.trace(query, 'Starting auth0.getUsers');
+    return auth0Client.getUsers({
+      fields: 'user_id,name,email,user_metadata,app_metadata,picture,link,identities,given_name,family_name', // User details field names to get from API.
+      q
+    });
+  })
+  .then(user => {
+    logger.trace({ query, user }, 'Got user details from auth0.getUsers');
+    return user && user[0]; // Removing hierarchy as got only one user.
+  });
 }
 
 function getPublicProfile(user_uuid) {
@@ -87,26 +108,35 @@ function getPublicProfile(user_uuid) {
     throw new Error('Cant get public user profile. Supplied user_uuid was undefined!');
   }
 
-  return getUserDetails(user_uuid)
-    .then(user => {
-      const publicProfile = {
-        email: _.get(user, 'user_metadata.email') || user.email,
-        first_name: _.get(user, 'user_metadata.first_name') || user.given_name,
-        last_name: _.get(user, 'user_metadata.last_name') || user.family_name,
-        phone: _.get(user, 'user_metadata.phone'),
-        picture: user.picture,
-        tenant_profile: _.get(user, 'user_metadata.tenant_profile')
-      };
+  return getUserDetails(user_uuid).then(normalizePublicProfile);
+}
 
-      if (!publicProfile.tenant_profile) {
-        publicProfile.tenant_profile = {};
-        if (_.get(user, 'identities[0].provider') === 'facebook') {
-          publicProfile.tenant_profile.facebook_url = user.link;
-        }
-      }
+function getPublicProfileByEmail(email) {
+  return getUserDetailsByEmail(email).then(normalizePublicProfile);
+}
 
-      return publicProfile;
-    });
+function normalizePublicProfile(user) {
+  if (!user) {
+    return;
+  }
+
+  const publicProfile = {
+    email: _.get(user, 'user_metadata.email') || user.email,
+    first_name: _.get(user, 'user_metadata.first_name') || user.given_name,
+    last_name: _.get(user, 'user_metadata.last_name') || user.family_name,
+    phone: _.get(user, 'user_metadata.phone'),
+    picture: user.picture,
+    tenant_profile: _.get(user, 'user_metadata.tenant_profile')
+  };
+
+  if (!publicProfile.tenant_profile) {
+    publicProfile.tenant_profile = {};
+    if (_.get(user, 'identities[0].provider') === 'facebook') {
+      publicProfile.tenant_profile.facebook_url = user.link;
+    }
+  }
+
+  return publicProfile;
 }
 
 function getApiToken() {
@@ -227,9 +257,11 @@ function isUserAdmin(user) {
 
 module.exports = {
   getUserDetails,
+  getUserDetailsByEmail,
   updateUserDetails,
   parseAuthToken,
   getProfileFromIdToken,
   getPublicProfile,
+  getPublicProfileByEmail,
   isUserAdmin
 };

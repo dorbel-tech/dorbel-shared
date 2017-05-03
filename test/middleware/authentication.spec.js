@@ -20,7 +20,7 @@ describe('middleware - authentication', function () {
   function assertUnauthenticatedRequest(context) {
     __.assertThat(context.request.user, __.is(__.undefined()));
     __.assertThat(context.response.status, __.is(401));
-    __.assertThat(context.response.body, __.is('Not Authorized'));
+    __.assertThat(context.response.body, __.is('User is not authorized! Please login again.'));
     __.assertThat(next.called, __.is(false));
   }
 

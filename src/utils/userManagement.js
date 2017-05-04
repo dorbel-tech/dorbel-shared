@@ -15,6 +15,9 @@ const userCacheKeyName = 'auth0_users_by_uuid';
 const userHeaderKey = 'x-user-profile';
 const TWO_HOURS = 60 * 60 * 2;
 
+// TODO : this module is dealing with tokens/headers and also with user-profiles - it should be split up
+// possibly to (1) a shared module that interfaces with Auth0+redis, (2) user-profiles and (3) auth-middleware
+
 // Update user details by user uuid using Management API or Cache.
 function updateUserDetails(user_uuid, userData) {
   logger.debug({ user_uuid, userData }, 'Starting updateUserDetails');
@@ -121,6 +124,7 @@ function normalizePublicProfile(user) {
   }
 
   const publicProfile = {
+    id: _.get(user, 'app_metadata.dorbel_user_id'),
     email: _.get(user, 'user_metadata.email') || user.email,
     first_name: _.get(user, 'user_metadata.first_name') || user.given_name,
     last_name: _.get(user, 'user_metadata.last_name') || user.family_name,
@@ -260,8 +264,8 @@ module.exports = {
   getUserDetailsByEmail,
   updateUserDetails,
   parseAuthToken,
-  getProfileFromIdToken,
   getPublicProfile,
+  getProfileFromIdToken,
   getPublicProfileByEmail,
   isUserAdmin
 };

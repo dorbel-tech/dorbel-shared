@@ -124,7 +124,7 @@ function normalizePublicProfile(user) {
   }
 
   const publicProfile = {
-    id: _.get(user, 'app_metadata.dorbel_user_id'),
+    dorbel_user_id: _.get(user, 'app_metadata.dorbel_user_id'),
     email: _.get(user, 'user_metadata.email') || user.email,
     first_name: _.get(user, 'user_metadata.first_name') || user.given_name,
     last_name: _.get(user, 'user_metadata.last_name') || user.family_name,

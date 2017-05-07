@@ -26,7 +26,7 @@ function updateUserDetails(user_uuid, userData) {
     throw new Error('Cant update user details. Supplied user id was undefined!');
   }
 
-  if (!userData || _.isEmpty(userData.user.user_metadata)) {
+  if (!userData || _.isEmpty(userData.user_metadata)) {
     throw new Error('Cant update user details. Supplied user metadata was empty!');
   }
 

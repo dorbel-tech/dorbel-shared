@@ -23,7 +23,11 @@ function updateUserDetails(user_uuid, userData) {
   logger.debug({ user_uuid, userData }, 'Starting updateUserDetails');
 
   if (!user_uuid) {
-    throw new Error('Cant update user details. Supplied user_uuid was undefined!');
+    throw new Error('Cant update user details. Supplied user id was undefined!');
+  }
+
+  if (!userData || _.isEmpty(userData.user.user_metadata)) {
+    throw new Error('Cant update user details. Supplied user metadata was empty!');
   }
 
   return getUserDetails(user_uuid)

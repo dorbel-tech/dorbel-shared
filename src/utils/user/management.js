@@ -167,8 +167,20 @@ function getProfileFromAuth0(idToken) {
   return promisify(client.tokens.getInfo, client.tokens)(idToken);
 }
 
+function getPublicProfile(user_uuid) {
+  if (!user_uuid) { throw new Error('Cant get public user profile. Supplied user_uuid was undefined!'); }
+  return getUserDetails(user_uuid).then(helpers.normalizePublicProfile);
+}
+
+function getPublicProfileByEmail(email) {
+  if (!email) { throw new Error('Cant get user details. Supplied email was undefined!'); }
+  return getUserDetailsFromAuth0({ email }).then(helpers.normalizePublicProfile);
+}
+
 module.exports = {
-  getUserDetails,
   updateUserDetails,
+  getUserDetails,
   getProfileFromIdToken,
+  getPublicProfile,
+  getPublicProfileByEmail,
 };

@@ -1,18 +1,7 @@
 'use strict';
-const management = require('./management');
 const jwtDecode = require('jwt-decode');
 const moment = require('moment');
 const _ = require('lodash');
-
-function getPublicProfile(user_uuid) {
-  if (!user_uuid) { throw new Error('Cant get public user profile. Supplied user_uuid was undefined!'); }
-  return management.getUserDetails(user_uuid).then(normalizePublicProfile);
-}
-
-function getPublicProfileByEmail(email) {
-  if (!email) { throw new Error('Cant get user details. Supplied email was undefined!'); }
-  return management.getUserDetailsFromAuth0({ email }).then(normalizePublicProfile);
-}
 
 function normalizePublicProfile(user) {
   if (!user) {
@@ -46,8 +35,6 @@ function getTokenTTL(token) {
 }
 
 module.exports = {
-  getPublicProfile,
-  getPublicProfileByEmail,
   normalizePublicProfile,
   getTokenTTL
 };

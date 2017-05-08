@@ -4,8 +4,8 @@ const __ = require('hamjest');
 const sinon = require('sinon');
 const userHeaderKey = 'x-user-profile';
 
-describe('middleware - optional authentication', function () {
-  const optAuthMiddleware = require('../../../src/koa-middleware/authentication').optionalAuthenticate;
+describe('middleware - authentication', function () {
+  const authMiddleware = require('../../../../src/koa-middleware/authentication').authenticate;
   const next = sinon.spy(cb => cb());
 
   function * authenticate(profileHeader) {
@@ -14,13 +14,15 @@ describe('middleware - optional authentication', function () {
     if (profileHeader) {
       _.set(context, ['request', 'headers', userHeaderKey], profileHeader);
     }
-    yield optAuthMiddleware.bind(context)(next);
+    yield authMiddleware.bind(context)(next);
     return context;
   }
 
   function assertUnauthenticatedRequest(context) {
     __.assertThat(context.request.user, __.is(__.undefined()));
-    __.assertThat(next.called, __.is(true));
+    __.assertThat(context.response.status, __.is(401));
+    __.assertThat(context.response.body, __.is('User is not authorized! Please login again.'));
+    __.assertThat(next.called, __.is(false));
   }
 
   it('should attach valid user object to request context', function * () {

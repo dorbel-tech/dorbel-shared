@@ -5,7 +5,7 @@ const mockRequire = require('mock-require');
 const userHeaderKey = 'x-user-profile';
 
 describe('middleware - parse auth token', function () {
-  const parseAuthToken = require('../../../src/koa-middleware/authentication').parseAuthToken;
+  const parseAuthToken = require('../../../../src/koa-middleware/authentication').parseAuthToken;
   const next = sinon.spy(cb => cb());
 
   before(function() {

@@ -28,7 +28,7 @@ describe('user management', function () {
     process.env.AUTH0_API_CLIENT_ID = 'test';
     process.env.AUTH0_API_CLIENT_SECRET = 'test';
 
-    userManagement = require('../../src/utils/user/management');
+    userManagement = require('../../../src/utils/user/management');
   });
 
   after(function () {

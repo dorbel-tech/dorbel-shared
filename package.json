@@ -6,7 +6,7 @@
   "scripts": {
     "release": "scripts/release.sh",
     "test": "yarn run test:unit",
-    "test:unit": "nyc --all mocha --timeout 10000 test/before-tests.js test/**/*.spec.js ",
+    "test:unit": "nyc --all mocha --timeout 10000 test/before-tests.js test/unit/**/*.spec.js test/unit/**/**/*.spec.js test/unit/**/**/**/*.spec.js",
     "lint": "eslint --ext .js -f table src",
     "watch": "yarn test -- -w"
   },
@@ -50,7 +50,7 @@
       "json"
     ],
     "include": [
-      "src/**/*.{js}"
+      "src/**/*.js"
     ],
     "report-dir": "./test/coverage"
   }

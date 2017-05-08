@@ -1,6 +1,6 @@
 'use strict';
 const logger = require('../../logger').getLogger(module);
-const errors = require('../.domainErrors');
+const errors = require('../domainErrors');
 
 function isUserAdmin(user) {
   return user.role === 'admin';

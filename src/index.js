@@ -8,7 +8,7 @@ module.exports = {
     requestLogger: require('./koa-middleware/request-logger'),
     swaggerModelValidator: require('./koa-middleware/swagger-model-validator'),
     errorHandler: require('./koa-middleware/error-handler'),
-    authentication: require('./koa-middleware/authentication'),
+    auth: require('./koa-middleware/authentication'),
   },
   helpers: {
     headers: require('./helpers/headers')

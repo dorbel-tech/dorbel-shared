@@ -1,4 +1,5 @@
 'use strict';
+const _ = require('lodash');
 const userManagement = require('../utils/user/management');
 const userHeaderKey = 'x-user-profile';
 

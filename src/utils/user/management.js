@@ -1,5 +1,6 @@
 // User details manipulation on auth0.
 'use strict';
+const _ = require('lodash');
 const logger = require('../../logger').getLogger(module);
 const cache = require('../../helpers/cache');
 const analytics = require('../analytics');
@@ -7,7 +8,6 @@ const AuthenticationClient = require('auth0').AuthenticationClient;
 const ManagementClient = require('auth0').ManagementClient;
 const request = require('request-promise');
 const promisify = require('es6-promisify');
-const _ = require('lodash');
 const userCacheKeyName = 'auth0_users_by_uuid';
 const TWO_HOURS = 60 * 60 * 2;
 const helpers = require('./helpers');

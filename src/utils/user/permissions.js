@@ -3,11 +3,11 @@ const logger = require('../../logger').getLogger(module);
 const errors = require('../domainErrors');
 
 function isUserAdmin(user) {
-  return user.role === 'admin';
+  return user && user.role === 'admin';
 }
 
 function isResourceOwner(user, resourceOwnerId) {
-  return resourceOwnerId == user.id;
+  return user && user.id === resourceOwnerId;
 }
 
 function isResourceOwnerOrAdmin(user, resourceOwnerId) {
@@ -15,7 +15,7 @@ function isResourceOwnerOrAdmin(user, resourceOwnerId) {
 }
 
 function validateResourceOwnership(user, resourceOwnerId) {
-  if (!user || !isResourceOwnerOrAdmin(user, resourceOwnerId)) {
+  if (!isResourceOwnerOrAdmin(user, resourceOwnerId)) {
     logger.error({
       resource_owner_id: resourceOwnerId,
       user_id: user.id

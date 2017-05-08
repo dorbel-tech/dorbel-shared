@@ -5,7 +5,7 @@ const mockRequire = require('mock-require');
 const src = '../../src/';
 
 describe('user management', function () {
-  let userManagement;
+  let authentication, userManagement, userHelpers;
 
   before(function () {
     this.authenticationClientMock = {};
@@ -37,7 +37,10 @@ describe('user management', function () {
     process.env.AUTH0_API_CLIENT_ID = 'test';
     process.env.AUTH0_API_CLIENT_SECRET = 'test';
 
-    userManagement = require('../../src/utils/userManagement');
+    userManagement = require('../../src/utils/user/management');
+    userHelpers = require('../../src/utils/user/helpers');
+    authentication = require('../../src/koa-middleware/authentication');
+
   });
 
   after(function () {
@@ -51,19 +54,19 @@ describe('user management', function () {
       const email = 'a@a.com';
       this.cacheMock.getKey.resolves('cached api key');
 
-      yield userManagement.getUserDetailsByEmail(email);
+      yield userHelpers.getPublicProfileByEmail(email);
       __.assertThat(this.managmentClientMock.getUsers.args[0][0], __.hasProperty('q', 'email:"a@a.com"'));
     });
 
     it('should return first user in response', function * () {
       this.managmentClientMock.getUsers.resolves([ 'userOne', 'userTwo' ]);
-      const user = yield userManagement.getUserDetailsByEmail('b@b.com');
+      const user = yield userHelpers.getPublicProfileByEmail('b@b.com');
       __.assertThat(user, __.equalTo('userOne'));
     });
 
     it('should not return anything if no response', function * () {
       this.managmentClientMock.getUsers.resolves();
-      const user = yield userManagement.getUserDetailsByEmail('c@c.om');
+      const user = yield userHelpers.getPublicProfileByEmail('c@c.om');
       __.assertThat(user, __.is(__.undefined()));
     });
   });
@@ -80,7 +83,7 @@ describe('user management', function () {
       };
 
       const next = cb => cb();
-      yield userManagement.parseAuthToken.bind(context)(next);
+      yield authentication.parseAuthToken.bind(context)(next);
       __.assertThat(context.request.headers['x-user-profile'],
         __.equalTo(JSON.stringify(expected))
       );
@@ -152,7 +155,7 @@ describe('user management', function () {
       };
 
       const next = cb => cb();
-      yield userManagement.parseAuthToken.bind(context)(next);
+      yield authentication.parseAuthToken.bind(context)(next);
       __.assertThat(context.request.headers['x-user-profile'], __.is(__.undefined()));
     });
 

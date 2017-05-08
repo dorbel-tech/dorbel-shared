@@ -1,22 +1,16 @@
 // User details manipulation on auth0.
-'user strict';
-const logger = require('../logger').getLogger(module);
-const cache = require('../helpers/cache');
-const analytics = require('./analytics');
+'use strict';
+const logger = require('../../logger').getLogger(module);
+const cache = require('../../helpers/cache');
+const analytics = require('../analytics');
 const AuthenticationClient = require('auth0').AuthenticationClient;
 const ManagementClient = require('auth0').ManagementClient;
 const request = require('request-promise');
 const promisify = require('es6-promisify');
-const jwtDecode = require('jwt-decode');
-const moment = require('moment');
 const _ = require('lodash');
-
 const userCacheKeyName = 'auth0_users_by_uuid';
-const userHeaderKey = 'x-user-profile';
 const TWO_HOURS = 60 * 60 * 2;
-
-// TODO : this module is dealing with tokens/headers and also with user-profiles - it should be split up
-// possibly to (1) a shared module that interfaces with Auth0+redis, (2) user-profiles and (3) auth-middleware
+const helpers = require('./helpers');
 
 // Update user details by user uuid using Management API or Cache.
 function updateUserDetails(user_uuid, userData) {
@@ -33,7 +27,7 @@ function updateUserDetails(user_uuid, userData) {
   return getUserDetails(user_uuid)
     .then(user => {
       if (user) {
-        return getApiToken()
+        return getApiTokenFromAuth0()
           .then(token => { return new ManagementClient({ domain: process.env.AUTH0_DOMAIN, token: token }); })
           .then(auth0Client => {
             logger.debug({ auth0_user_id: user.user_id }, 'Starting auth0.updateUser');
@@ -81,21 +75,12 @@ function getUserDetails(user_uuid) {
   });
 }
 
-function getUserDetailsByEmail(email) {
-  logger.trace({ email }, 'getting user details by email');
-  if (!email) {
-    throw new Error('Cant get user details. Supplied email was undefined!');
-  }
-
-  return getUserDetailsFromAuth0({ email });
-}
-
 function getUserDetailsFromAuth0(query) {
   // the query should be in Apache Lucene format https://lucene.apache.org/core/2_9_4/queryparsersyntax.html#AND
   const queryPairs = Object.keys(query).map(key => `${key}:"${query[key]}"`);
   const q = queryPairs.join(' AND ');
 
-  return getApiToken()
+  return getApiTokenFromAuth0()
   .then(token => { return new ManagementClient({ domain: process.env.AUTH0_DOMAIN, token }); })
   .then(auth0Client => {
     logger.trace(query, 'Starting auth0.getUsers');
@@ -110,45 +95,8 @@ function getUserDetailsFromAuth0(query) {
   });
 }
 
-function getPublicProfile(user_uuid) {
-  if (!user_uuid) {
-    throw new Error('Cant get public user profile. Supplied user_uuid was undefined!');
-  }
-
-  return getUserDetails(user_uuid).then(normalizePublicProfile);
-}
-
-function getPublicProfileByEmail(email) {
-  return getUserDetailsByEmail(email).then(normalizePublicProfile);
-}
-
-function normalizePublicProfile(user) {
-  if (!user) {
-    return;
-  }
-
-  const publicProfile = {
-    dorbel_user_id: _.get(user, 'app_metadata.dorbel_user_id'),
-    email: _.get(user, 'user_metadata.email') || user.email,
-    first_name: _.get(user, 'user_metadata.first_name') || user.given_name,
-    last_name: _.get(user, 'user_metadata.last_name') || user.family_name,
-    phone: _.get(user, 'user_metadata.phone'),
-    picture: user.picture,
-    tenant_profile: _.get(user, 'user_metadata.tenant_profile')
-  };
-
-  if (!publicProfile.tenant_profile) {
-    publicProfile.tenant_profile = {};
-    if (_.get(user, 'identities[0].provider') === 'facebook') {
-      publicProfile.tenant_profile.facebook_url = user.link;
-    }
-  }
-
-  return publicProfile;
-}
-
-function getApiToken() {
-  logger.debug('Starting getApiToken');
+function getApiTokenFromAuth0() {
+  logger.debug('Starting getApiTokenFromAuth0');
   if (!process.env.AUTH0_DOMAIN) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
   if (!process.env.AUTH0_API_CLIENT_ID) { throw new Error('You need to define AUTH0_API_CLIENT_ID environment variable!'); }
   if (!process.env.AUTH0_API_CLIENT_SECRET) { throw new Error('You need to define AUTH0_API_CLIENT_SECRET environment variable!'); }
@@ -181,22 +129,9 @@ function getApiToken() {
     });
 }
 
-function getProfileFromAuth0(idToken) {
-  if (!process.env.AUTH0_DOMAIN) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
-  if (!process.env.AUTH0_FRONT_CLIENT_ID) { throw new Error('You need to define AUTH0_FRONT_CLIENT_ID environment variable!'); }
-
-  // AuthenticationClient is per-user and must be initialized every time
-  const client = new AuthenticationClient({
-    domain: process.env.AUTH0_DOMAIN,
-    clientId: process.env.AUTH0_FRONT_CLIENT_ID
-  });
-
-  return promisify(client.tokens.getInfo, client.tokens)(idToken);
-}
-
 // Get user details by user token from Auth API or Cache.
 function* getProfileFromIdToken(idToken) {
-  const ttl = getTokenTTL(idToken);
+  const ttl = helpers.getTokenTTL(idToken);
   if (ttl < 0) {
     return;
   }
@@ -219,57 +154,21 @@ function* getProfileFromIdToken(idToken) {
   return profile;
 }
 
-// Take the id-token from the header, fetch the profile, and attach it to the proxied request
-function* parseAuthToken(next) {
-  // we clear this anyway so it cannot be hijacked
-  this.request.headers[userHeaderKey] = undefined;
+function getProfileFromAuth0(idToken) {
+  if (!process.env.AUTH0_DOMAIN) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
+  if (!process.env.AUTH0_FRONT_CLIENT_ID) { throw new Error('You need to define AUTH0_FRONT_CLIENT_ID environment variable!'); }
 
-  const token = getAccessTokenFromHeader(this.request);
-  // If no token, continue
-  if (!token) {
-    return yield next;
-  }
+  // AuthenticationClient is per-user and must be initialized every time
+  const client = new AuthenticationClient({
+    domain: process.env.AUTH0_DOMAIN,
+    clientId: process.env.AUTH0_FRONT_CLIENT_ID
+  });
 
-  const profile = yield getProfileFromIdToken(token);
-
-  if (profile) {
-    // Add profile to request headers. This request is proxied to the backend APIS
-    // IMPORANT!!! Please make sure not to add here any data here that is not plain ASCII, like user name, etc..
-    this.request.headers[userHeaderKey] = JSON.stringify({
-      id: profile.dorbel_user_id,
-      role: _.get(profile, 'app_metadata.role')
-    });
-  }
-
-  yield next;
-}
-
-function getTokenTTL(token) {
-  let exp = jwtDecode(token).exp; // Token expiration seconds in unix.
-  let now = moment().unix(); // Now seconds in unix.
-  return exp - now; // Time to live in cache in seconds.
-}
-
-function getAccessTokenFromHeader(req) {
-  if (req.headers.authorization) {
-    var tokenMatch = req.headers.authorization.match(/^bearer (.+)/i);
-    if (tokenMatch) {
-      return tokenMatch[1];
-    }
-  }
-}
-
-function isUserAdmin(user) {
-  return user.role === 'admin';
+  return promisify(client.tokens.getInfo, client.tokens)(idToken);
 }
 
 module.exports = {
   getUserDetails,
-  getUserDetailsByEmail,
   updateUserDetails,
-  parseAuthToken,
-  getPublicProfile,
   getProfileFromIdToken,
-  getPublicProfileByEmail,
-  isUserAdmin
 };

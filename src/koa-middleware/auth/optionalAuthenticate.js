@@ -1,9 +1,7 @@
 'use strict';
-const _ = require('lodash');
-const userHeaderKey = 'x-user-profile';
 
 function* optionalAuthenticate(next) {
-  const xUserProfile = this.request.headers[userHeaderKey];
+  const xUserProfile = this.request.headers['x-user-profile'];
   
   if (xUserProfile) {
     try {

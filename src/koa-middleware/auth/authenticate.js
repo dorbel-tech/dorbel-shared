@@ -15,7 +15,7 @@ function* authenticate(next) {
     yield next;
   } else {
     this.response.status = 401;
-    this.response.body = 'Not Authorized';
+    this.response.body = 'User is not authorized! Please login again.';
   }
 }
 

@@ -1,10 +1,10 @@
 'use strict';
-const sinon = require('sinon');
 const _ = require('lodash');
 const __ = require('hamjest');
+const sinon = require('sinon');
 
 describe('middleware - optional authentication', function () {
-  const middleware = require('../../src/koa-middleware/optionalAuthentication');
+  const optAuthMiddleware = require('../../../../src/koa-middleware/auth/optionalAuthenticate');
   const next = sinon.spy(cb => cb());
 
   function * authenticate(profileHeader) {
@@ -13,7 +13,7 @@ describe('middleware - optional authentication', function () {
     if (profileHeader) {
       _.set(context, ['request', 'headers', 'x-user-profile'], profileHeader);
     }
-    yield middleware.bind(context)(next);
+    yield optAuthMiddleware.bind(context)(next);
     return context;
   }
 

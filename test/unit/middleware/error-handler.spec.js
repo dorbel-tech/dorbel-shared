@@ -16,9 +16,9 @@ describe('middleware - error-handler', function () {
     loggerMock = {
       error: sinon.spy()
     };
-    mockRequire('../../src/utils/newrelic', { init: () => newRelicMock });
-    mockRequire('../../src/logger', { getLogger: () => loggerMock });
-    middleware = mockRequire.reRequire('../../src/koa-middleware/error-handler')();
+    mockRequire('../../../src/utils/newrelic', { init: () => newRelicMock });
+    mockRequire('../../../src/logger', { getLogger: () => loggerMock });
+    middleware = mockRequire.reRequire('../../../src/koa-middleware/error-handler')();
   });
 
   afterEach(() => loggerMock.error.reset());
@@ -45,7 +45,7 @@ describe('middleware - error-handler', function () {
   });
 
   it('should stop flow if error is thrown', function * () {
-    const error = { status: 980, message: 'bad request', stack: 'my stack' };
+    const error = { status: 980, message: 'bad request' };
     const next = sinon.stub().throws(error);
     const context = yield handleErrors(next);
     __.assertThat(context.body, __.is(error.message));
@@ -54,7 +54,7 @@ describe('middleware - error-handler', function () {
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
       __.hasProperties({ err: error }),
-      __.is('Server Error')
+      __.is(error.message)
     ));
   });
 
@@ -68,7 +68,7 @@ describe('middleware - error-handler', function () {
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
       __.hasProperties({ err: error }),
-      __.is('Server Error')
+      __.is(error.message)
     ));
   });
 
@@ -86,7 +86,7 @@ describe('middleware - error-handler', function () {
     };
 
     yield middleware.bind(context)(next);
-    __.assertThat(loggerMock.error.args[0][0], __.hasProperties({ requestId, err: error }));
+    __.assertThat(loggerMock.error.args[0][0], __.hasProperties({ err: error, requestId }));
   });
 
 });

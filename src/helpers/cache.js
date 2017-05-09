@@ -1,7 +1,6 @@
 // Redis cache helper.
 'use strict';
 
-const config = require('../config');
 const redis = require('redis');
 const bluebird = require('bluebird'); bluebird.promisifyAll(redis.RedisClient.prototype);
 const logger = require('../logger').getLogger(module);
@@ -13,10 +12,10 @@ class Cache {
       return this.redisClient;
     }
     else {
-      const REDIS_HOST = config.get('REDIS_HOST');
-      const REDIS_PORT = config.get('REDIS_PORT') || 6379;
-      const REDIS_RECONNECT_AFTER_FAIL_MS = config.get('REDIS_RECONNECT_AFTER_FAIL_MS') || 60 * 1000;
-      const REDIS_CONNECT_TIMEOUT_MS = config.get('REDIS_CONNECT_TIMEOUT_MS') || 2 * 1000;
+      const REDIS_HOST = process.env.REDIS_HOST;
+      const REDIS_PORT = process.env.REDIS_PORT || 6379;
+      const REDIS_RECONNECT_AFTER_FAIL_MS = process.env.REDIS_RECONNECT_AFTER_FAIL_MS || 60 * 1000;
+      const REDIS_CONNECT_TIMEOUT_MS = process.env.REDIS_CONNECT_TIMEOUT_MS || 2 * 1000;
 
       if (!REDIS_HOST) {
         logAndThrowError(`You need to define REDIS_HOST environment variable! HOST:${REDIS_HOST} PORT:${REDIS_PORT}`);

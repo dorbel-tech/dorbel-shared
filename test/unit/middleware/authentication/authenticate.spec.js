@@ -4,7 +4,7 @@ const __ = require('hamjest');
 const sinon = require('sinon');
 
 describe('middleware - authentication', function () {
-  const middleware = require('../../src/koa-middleware/authentication');
+  const authMiddleware = require('../../../../src/koa-middleware/auth/authenticate');
   const next = sinon.spy(cb => cb());
 
   function * authenticate(profileHeader) {
@@ -13,14 +13,14 @@ describe('middleware - authentication', function () {
     if (profileHeader) {
       _.set(context, ['request', 'headers', 'x-user-profile'], profileHeader);
     }
-    yield middleware.bind(context)(next);
+    yield authMiddleware.bind(context)(next);
     return context;
   }
 
   function assertUnauthenticatedRequest(context) {
     __.assertThat(context.request.user, __.is(__.undefined()));
     __.assertThat(context.response.status, __.is(401));
-    __.assertThat(context.response.body, __.is('Not Authorized'));
+    __.assertThat(context.response.body, __.is('User is not authorized! Please login again.'));
     __.assertThat(next.called, __.is(false));
   }
 

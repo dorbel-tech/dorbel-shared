@@ -1,12 +1,12 @@
 {
   "name": "dorbel-shared",
-  "version": "1.0.27",
+  "version": "1.0.51",
   "description": "Shared module for dorbel services",
   "main": "src/index.js",
   "scripts": {
     "release": "scripts/release.sh",
     "test": "yarn run test:unit",
-    "test:unit": "nyc --all mocha --timeout 10000 test/before-tests.js test/**/*.spec.js",
+    "test:unit": "nyc --all mocha --timeout 10000 --require ./test/before-tests.js --recursive ./test/unit",
     "lint": "eslint --ext .js -f table src",
     "watch": "yarn test -- -w"
   },
@@ -19,16 +19,16 @@
     "bunyan": "~1.8.1",
     "bunyan-sumologic": "^1.2.0",
     "co": "^4.6.0",
+    "dotenv": "^4.0.0",
     "es6-promisify": "^5.0.0",
     "jwt-decode": "^2.1.0",
     "lodash": "~4.16.3",
     "mock-require": "^2.0.1",
-    "nconf": "~0.8.4",
-    "newrelic": "1.31.0",
+    "newrelic": "^1.38.2",
     "nyc": "^10.1.2",
     "redis": "^2.6.3",
-    "request": "^2.79.0",
-    "request-promise": "^4.1.1",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.0",
     "sinon-as-promised": "^4.0.2",
     "sns.js": "1.0.2",
     "sqs-consumer": "3.4.0",
@@ -50,7 +50,7 @@
       "json"
     ],
     "include": [
-      "src/**/*.{js}"
+      "src/**/*.js"
     ],
     "report-dir": "./test/coverage"
   }

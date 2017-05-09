@@ -1,5 +1,4 @@
 'use strict';
-const config = require('../config');
 
 // Fix phone number by removing trailing zero and special characters.
 function normalizePhone(phone) {
@@ -7,7 +6,7 @@ function normalizePhone(phone) {
 }
 
 function getListingUrl(listingId) {
-  const website_url = config.get('FRONT_GATEWAY_URL') || 'https://app.dorbel.com';
+  const website_url = process.env.FRONT_GATEWAY_URL || 'https://app.dorbel.com';
   return website_url + '/apartments/' + listingId;
 }
 

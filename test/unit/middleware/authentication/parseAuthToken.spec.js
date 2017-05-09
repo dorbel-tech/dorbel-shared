@@ -5,7 +5,7 @@ const mockRequire = require('mock-require');
 const userHeaderKey = 'x-user-profile';
 
 describe('middleware - parse auth token', function () {
-  const parseAuthToken = require('../../../../src/koa-middleware/authentication').parseAuthToken;
+  let parseAuthToken;
   const next = sinon.spy(cb => cb());
 
   before(function() {
@@ -25,10 +25,12 @@ describe('middleware - parse auth token', function () {
       unix: () => this.currentUnixTime
     };
 
-    mockRequire('../../../src/helpers/cache', this.cacheMock);
-    mockRequire('jwt-decode', () => this.decodedTokenMock);
+    mockRequire('../../../../src/helpers/cache', this.cacheMock);
     mockRequire('auth0', this.auth0mock);
+    mockRequire('jwt-decode', () => this.decodedTokenMock);
     mockRequire('moment', () => this.momentMock);
+
+    parseAuthToken = mockRequire.reRequire('../../../../src/koa-middleware/auth/parseAuthToken');
 
     process.env.AUTH0_DOMAIN = 'test';
     process.env.AUTH0_FRONT_CLIENT_ID = 'test';

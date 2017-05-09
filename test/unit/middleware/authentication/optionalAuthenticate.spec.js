@@ -2,17 +2,16 @@
 const _ = require('lodash');
 const __ = require('hamjest');
 const sinon = require('sinon');
-const userHeaderKey = 'x-user-profile';
 
 describe('middleware - optional authentication', function () {
-  const optAuthMiddleware = require('../../../../src/koa-middleware/authentication').optionalAuthenticate;
+  const optAuthMiddleware = require('../../../../src/koa-middleware/auth/optionalAuthenticate');
   const next = sinon.spy(cb => cb());
 
   function * authenticate(profileHeader) {
     next.reset();
     const context = { response: {}, request: { headers: {} } };
     if (profileHeader) {
-      _.set(context, ['request', 'headers', userHeaderKey], profileHeader);
+      _.set(context, ['request', 'headers', 'x-user-profile'], profileHeader);
     }
     yield optAuthMiddleware.bind(context)(next);
     return context;

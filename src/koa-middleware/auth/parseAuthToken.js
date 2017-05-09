@@ -1,26 +1,7 @@
 'use strict';
 const _ = require('lodash');
-const userManagement = require('../utils/user/management');
+const userManagement = require('../../utils/user/management');
 const userHeaderKey = 'x-user-profile';
-
-function* authenticate(next) {
-  let user;
-  const profileHeader = this.request.headers[userHeaderKey];
-
-  try {
-    user = profileHeader && JSON.parse(profileHeader);
-  } catch (ex) {
-    // nothing here
-  }
-
-  if (user && user.id) {
-    this.request.user = user;
-    yield next;
-  } else {
-    this.response.status = 401;
-    this.response.body = 'User is not authorized! Please login again.';
-  }
-}
 
 // Take the id-token from the header, fetch the profile, and attach it to the proxied request
 function* parseAuthToken(next) {
@@ -56,26 +37,4 @@ function getAccessTokenFromHeader(req) {
   }
 }
 
-function* optionalAuthenticate(next) {
-  const xUserProfile = this.request.headers[userHeaderKey];
-  
-  if (xUserProfile) {
-    try {
-      const user = JSON.parse(xUserProfile);
-      if (user && user.id) {
-        this.request.user = user;    
-      }
-    }
-    catch(ex) {
-      // nothing to do
-    }
-  }
-  
-  yield next;
-}
-
-module.exports = {
-  authenticate,
-  parseAuthToken,
-  optionalAuthenticate
-};
+module.exports = parseAuthToken;

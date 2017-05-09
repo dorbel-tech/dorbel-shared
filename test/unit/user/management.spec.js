@@ -20,7 +20,7 @@ describe('user management', function () {
       ManagementClient: sinon.stub().returns(this.managmentClientMock)
     };
 
-    mockRequire('../../src/helpers/cache', this.cacheMock);
+    mockRequire('../../../src/helpers/cache', this.cacheMock);
     mockRequire('auth0', this.auth0mock);
 
     process.env.AUTH0_DOMAIN = 'test';
@@ -28,7 +28,7 @@ describe('user management', function () {
     process.env.AUTH0_API_CLIENT_ID = 'test';
     process.env.AUTH0_API_CLIENT_SECRET = 'test';
 
-    userManagement = require('../../../src/utils/user/management');
+    userManagement = mockRequire.reRequire('../../../src/utils/user/management');
   });
 
   after(function () {
@@ -43,12 +43,6 @@ describe('user management', function () {
       this.cacheMock.getKey.resolves('cached api key');
       yield userManagement.getPublicProfileByEmail(email);
       __.assertThat(this.managmentClientMock.getUsers.args[0][0], __.hasProperty('q', 'email:"a@a.com"'));
-    });
-
-    it('should return first user in response', function * () {
-      this.managmentClientMock.getUsers.resolves([ 'userOne', 'userTwo' ]);
-      const user = yield userManagement.getPublicProfileByEmail('b@b.com');
-      __.assertThat(user, __.equalTo('userOne'));
     });
 
     it('should not return anything if no response', function * () {

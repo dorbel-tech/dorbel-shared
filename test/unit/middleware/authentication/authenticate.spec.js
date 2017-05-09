@@ -4,7 +4,7 @@ const __ = require('hamjest');
 const sinon = require('sinon');
 
 describe('middleware - authentication', function () {
-  const middleware = require('../../src/koa-middleware/authentication');
+  const authMiddleware = require('../../../../src/koa-middleware/auth/authenticate');
   const next = sinon.spy(cb => cb());
 
   function * authenticate(profileHeader) {
@@ -13,7 +13,7 @@ describe('middleware - authentication', function () {
     if (profileHeader) {
       _.set(context, ['request', 'headers', 'x-user-profile'], profileHeader);
     }
-    yield middleware.bind(context)(next);
+    yield authMiddleware.bind(context)(next);
     return context;
   }
 

@@ -8,8 +8,7 @@ module.exports = {
     requestLogger: require('./koa-middleware/request-logger'),
     swaggerModelValidator: require('./koa-middleware/swagger-model-validator'),
     errorHandler: require('./koa-middleware/error-handler'),
-    authenticate: require('./koa-middleware/authentication'),
-    optionalAuthenticate: require('./koa-middleware/optionalAuthentication'),
+    auth: require('./koa-middleware/auth/index'),
   },
   helpers: {
     headers: require('./helpers/headers')
@@ -17,7 +16,7 @@ module.exports = {
   utils: {
     waitForConnection: require('./utils/waitForConnection'),
     messageBus: require('./utils/messageBus'),
-    userManagement: require('./utils/userManagement'),
+    user: require('./utils/user/index'),
     analytics: require('./utils/analytics'),
     generic: require('./utils/generic'),
     serverRunner: require('./utils/serverRunner'),

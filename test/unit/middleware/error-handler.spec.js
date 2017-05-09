@@ -16,9 +16,9 @@ describe('middleware - error-handler', function () {
     loggerMock = {
       error: sinon.spy()
     };
-    mockRequire('../../src/utils/newrelic', { init: () => newRelicMock });
-    mockRequire('../../src/logger', { getLogger: () => loggerMock });
-    middleware = mockRequire.reRequire('../../src/koa-middleware/error-handler')();
+    mockRequire('../../../src/utils/newrelic', { init: () => newRelicMock });
+    mockRequire('../../../src/logger', { getLogger: () => loggerMock });
+    middleware = mockRequire.reRequire('../../../src/koa-middleware/error-handler')();
   });
 
   afterEach(() => loggerMock.error.reset());

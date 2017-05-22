@@ -23,13 +23,13 @@ const eventType = {
   OHE_UNFOLLOWED: 'OHE_UNFOLLOWED'
 };
 
-// Publish a single message to AWS SNS topic. 
+// Publish a single message to AWS SNS topic.
 function publish(snsTopicArn, eventType, dataPayload) {
-  // params with "_" prefix are meant to come first for faster finding in Intercom/Customer.io 
+  // params with "_" prefix are meant to come first for faster finding in Intercom/Customer.io
   // In addition Intercom is limited to number of variables, so we put it first to be present.
   // Auto adding listing url based on provided listing_id.
   if(dataPayload.listing_id) {
-    dataPayload._listing_url = generic.getListingUrl(dataPayload.listing_id);
+    dataPayload.listing_url = generic.getListingUrl(dataPayload.listing_id);
   }
 
   let message = {
@@ -42,7 +42,7 @@ function publish(snsTopicArn, eventType, dataPayload) {
   return SNS.publish(snsTopicArn, message);
 }
 
-// Consume messages from AWS SQS queue which is subscriber of AWS SNS topic. 
+// Consume messages from AWS SQS queue which is subscriber of AWS SNS topic.
 // To stop consumer: consumer.stop();
 function start(sqsQueueUrl, handleMessage) {
   let consumer = SQS.create({
@@ -63,7 +63,7 @@ function start(sqsQueueUrl, handleMessage) {
 function handleMessageWrapper(handleFunc, message, done) {
   const messageBody = JSON.parse(message.Body);
   const messageDataPayload = JSON.parse(messageBody.Message);
-  
+
   handleFunc(messageDataPayload)
     .then(() => done())
     .catch(err => {

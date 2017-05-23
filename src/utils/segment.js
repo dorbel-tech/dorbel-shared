@@ -1,5 +1,6 @@
 'use strict';
 const logger = require('../logger').getLogger(module);
+const generic = require('./generic');
 const key = process.env.SEGMENT_IO_WRITE_KEY;
 let analytics;
 
@@ -22,11 +23,11 @@ function track(userId, eventName, properties) {
 
 function identify(user) {
   analytics.identify(mapAuth0UserToSegmentUser(user));
-  logger.trace({user}, 'identifing user to segment io');  
+  logger.trace({user}, 'identifing user to segment io');
 }
 
 function mapAuth0UserToSegmentUser(auth0user) {
-  const user_metadata = auth0user.user_metadata || {}; 
+  const user_metadata = auth0user.user_metadata || {};
 
   return {
     userId: auth0user.app_metadata.dorbel_user_id,
@@ -38,7 +39,9 @@ function mapAuth0UserToSegmentUser(auth0user) {
       avatar: auth0user.picture,
       created_at: auth0user.created_at,
       timezone: 'Asia/Jerusalem',
-      environment: process.env.NODE_ENV
+      environment: process.env.NODE_ENV,
+      listing_id: user_metadata.listing_id,
+      listing_url: user_metadata.listing_id ? generic.getListingUrl(user_metadata.listing_id) : undefined
     }
   };
 }

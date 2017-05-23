@@ -3,6 +3,8 @@ const jwtDecode = require('jwt-decode');
 const moment = require('moment');
 const _ = require('lodash');
 
+// Make sure to sync this object in case of changing with front-gateway client object as well:
+// https://github.com/dorbel-tech/dorbel-shared/blob/master/src/utils/user/helpers.js#L6
 function normalizePublicProfile(user) {
   if (!user) {
     return;

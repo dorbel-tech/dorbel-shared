@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const logger = require('../../logger').getLogger(module);
 const cache = require('../../helpers/cache');
-const analytics = require('../analytics');
+const segment = require('../segment');
 const AuthenticationClient = require('auth0').AuthenticationClient;
 const ManagementClient = require('auth0').ManagementClient;
 const request = require('request-promise');
@@ -35,7 +35,7 @@ function updateUserDetails(user_uuid, userData) {
               .then(response => {
                 logger.info({ user_uuid: response.app_metadata.dorbel_user_id }, 'Succesfully updated auth0 user details');
                 cache.setHashKey(userCacheKeyName, response.app_metadata.dorbel_user_id, JSON.stringify(response));
-                analytics.identify(response);
+                segment.identify(response);
                 return response;
               });
           });

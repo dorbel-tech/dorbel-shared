@@ -25,8 +25,6 @@ const eventType = {
 
 // Publish a single message to AWS SNS topic.
 function publish(snsTopicArn, eventType, dataPayload) {
-  // params with "_" prefix are meant to come first for faster finding in Intercom/Customer.io
-  // In addition Intercom is limited to number of variables, so we put it first to be present.
   // Auto adding listing url based on provided listing_id.
   if(dataPayload.listing_id) {
     dataPayload.listing_url = generic.getListingUrl(dataPayload.listing_id);

@@ -19,16 +19,14 @@ const eventType = {
   OHE_DEACTIVATED: 'OHE_DEACTIVATED',
   OHE_DELETED: 'OHE_DELETED',
   OHE_REGISTERED: 'OHE_REGISTERED',
-  OHE_UNREGISTERED: 'OHE_UNREGISTERED',
-  OHE_FOLLOWED: 'OHE_FOLLOWED',
-  OHE_UNFOLLOWED: 'OHE_UNFOLLOWED'
+  OHE_UNREGISTERED: 'OHE_UNREGISTERED'
 };
 
 // Publish a single message to AWS SNS topic.
 function publish(snsTopicArn, eventType, dataPayload) {
   // Auto adding listing url based on provided listing_id.
-  if(dataPayload.listing_id) {
-    dataPayload.listing_url = generic.getListingUrl(dataPayload.listing_id);
+  if(dataPayload.apartment_id) {
+    dataPayload.listing_url = generic.getPropertyUrl(dataPayload.apartment_id);
   }
 
   let message = {

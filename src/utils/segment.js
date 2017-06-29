@@ -1,4 +1,5 @@
 'use strict';
+const _ = require('lodash');
 const logger = require('../logger').getLogger(module);
 const generic = require('./generic');
 const key = process.env.SEGMENT_IO_WRITE_KEY;
@@ -28,10 +29,11 @@ function identify(user) {
 
 function mapAuth0UserToSegmentUser(auth0user) {
   const user_metadata = auth0user.user_metadata || {};
+  const settings = user_metadata.settings || {}
 
   return {
     userId: auth0user.app_metadata.dorbel_user_id,
-    traits: { // https://segment.com/docs/spec/identify/#traits
+    traits: _.merge({ // https://segment.com/docs/spec/identify/#traits
       email: user_metadata.email || auth0user.email,
       first_name: user_metadata.first_name || auth0user.given_name,
       last_name: user_metadata.last_name || auth0user.family_name,
@@ -42,7 +44,7 @@ function mapAuth0UserToSegmentUser(auth0user) {
       environment: process.env.NODE_ENV,
       apartment_id: user_metadata.apartment_id,
       listing_url: user_metadata.apartment_id ? generic.getPropertyUrl(user_metadata.apartment_id) : undefined
-    }
+    }, settings)
   };
 }
 

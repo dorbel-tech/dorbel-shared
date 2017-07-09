@@ -41,6 +41,7 @@ function mapAuth0UserToSegmentUser(auth0user) {
       created_at: auth0user.created_at,
       timezone: 'Asia/Jerusalem',
       environment: process.env.NODE_ENV,
+      listing_id: user_metadata.listing_id,
       apartment_id: user_metadata.apartment_id,
       listing_url: user_metadata.apartment_id ? generic.getPropertyUrl(user_metadata.apartment_id) : undefined
     }, settings)

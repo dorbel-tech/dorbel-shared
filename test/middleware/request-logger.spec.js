@@ -33,9 +33,11 @@ describe('middleware - request logger', function () {
     const method = 'test';
     const path = '/1/2/3';
     const statusCode = 123;
+    const ip = '192.0.0.1';
     const context = {
-      url: path,
+      ip,
       method,
+      url: path,
       status: statusCode,
       request: { headers: {} }
     };
@@ -47,7 +49,7 @@ describe('middleware - request logger', function () {
       'Request'
     ));
     __.assertThat(this.loggerMock.info.args[0], __.contains(
-      __.hasProperties({ method, path, statusCode }),
+      __.hasProperties({ ip, method, path, statusCode }),
       'Response'
     ));
   });

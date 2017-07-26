@@ -10,7 +10,7 @@ function getMiddleWare() {
     try {
       yield next;
     } catch (err) {
-      setResponseBody(err);
+      setResponseBody.bind(this)(err);
 
       this.app.emit('error', err, this);
       if (newrelic) {  newrelic.noticeError(err); }
@@ -34,7 +34,7 @@ function setResponseBody(err) {
   this.status = err.status || 500;
 
   // Sequelize errors: hide sensitive internal data
-  if (err.name.startsWith('Sequelize')) {
+  if (err.name && err.name.startsWith('Sequelize')) {
     this.body = 'Internal error';
     this.status = 500;
 

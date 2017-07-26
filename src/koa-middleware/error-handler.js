@@ -10,8 +10,7 @@ function getMiddleWare() {
     try {
       yield next;
     } catch (err) {
-      this.status = err.status || 500;
-      this.body = err.message;
+      setResponseBody(err);
 
       this.app.emit('error', err, this);
       if (newrelic) {  newrelic.noticeError(err); }
@@ -19,7 +18,7 @@ function getMiddleWare() {
       const requestId = this.request.headers['x-request-id'];
       
       logger.error({
-        err,
+        error: err, // renamed this prop to 'error' - bunyan's serializer drops essensial data from properties named 'err' 
         method: this.method,
         path: this.url,
         statusCode: this.status,
@@ -27,6 +26,24 @@ function getMiddleWare() {
       }, err.message);
     }
   };
+}
+
+function setResponseBody(err) {
+  // general errors
+  this.body = err.message;
+  this.status = err.status || 500;
+
+  // Sequelize errors: hide sensitive internal data
+  if (err.name.startsWith('Sequelize')) {
+    this.body = 'Internal error';
+    this.status = 500;
+
+    // Validation errors should be returned as 400 errors to indicate bad requests instead of internal errors
+    if (err.name === 'SequelizeValidationError') {
+      this.body = err.errors;
+      this.status = 400;
+    }
+  }
 }
 
 module.exports = getMiddleWare;

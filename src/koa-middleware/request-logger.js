@@ -13,14 +13,14 @@ function getMiddleWare() {
       return yield next;
     }
 
-    const requestId = getOrSetRequestId(this.request.headers);
+    const requestId = getOrSetRequestId(this.headers);
     const start = new Date;
     logger.trace({ method: this.method, path: this.url, requestId }, 'Request');
 
     yield next;
 
     const ms = new Date - start;
-    logger.info({ ip: getRequestIp(this.request), method: this.method, path: this.url, statusCode: this.status, duration: ms, requestId }, 'Response');
+    logger.info({ ip: getRequestIp(this.request), referrer: this.headers.referer, method: this.method, path: this.url, statusCode: this.status, duration: ms, requestId }, 'Response');
   };
 }
 

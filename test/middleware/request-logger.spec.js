@@ -34,8 +34,10 @@ describe('middleware - request logger', function () {
     const path = '/1/2/3';
     const statusCode = 123;
     const ip = '192.0.0.1';
+    const referrer = 'http://localhost';
     const context = {
       ip,
+      referrer,
       method,
       url: path,
       status: statusCode,
@@ -49,7 +51,7 @@ describe('middleware - request logger', function () {
       'Request'
     ));
     __.assertThat(this.loggerMock.info.args[0], __.contains(
-      __.hasProperties({ ip, method, path, statusCode }),
+      __.hasProperties({ ip, referrer, method, path, statusCode }),
       'Response'
     ));
   });

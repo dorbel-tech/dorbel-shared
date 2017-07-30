@@ -20,7 +20,7 @@ function getMiddleWare() {
     yield next;
 
     const ms = new Date - start;
-    logger.info({ ip: getRequestIp(this.request), method: this.method, path: this.url, statusCode: this.status, duration: ms, requestId }, 'Response');
+    logger.info({ ip: this.ips, method: this.method, path: this.url, statusCode: this.status, duration: ms, requestId }, 'Response');
   };
 }
 
@@ -28,14 +28,6 @@ function getOrSetRequestId(headers) {
   // request ID might already be set on this request - if the request was proxied
   headers[REQUEST_ID_HEADER] = headers[REQUEST_ID_HEADER] || uuidV4();
   return headers[REQUEST_ID_HEADER];
-}
-
-// Borrowed from: https://stackoverflow.com/questions/8107856/how-to-determine-a-users-ip-address-in-node
-function getRequestIp(request) {
-  return request.headers['x-forwarded-for'] ||
-  request.connection.remoteAddress ||
-  request.socket.remoteAddress ||
-  request.connection.socket.remoteAddress;
 }
 
 module.exports = getMiddleWare;

@@ -18,11 +18,16 @@ function getMiddleWare() {
       const requestId = this.request.headers['x-request-id'];
       
       logger.error({
-        error: err, // renamed this prop to 'error' - bunyan's serializer drops essensial data from properties named 'err' 
+        err: err,
         method: this.method,
         path: this.url,
         statusCode: this.status,
         requestId,
+        sequelizeData: isSequelizeError(err) ? {
+          errors: err.errors,
+          fields: err.fields,
+          sql: err.sql
+        } : undefined
       }, err.message);
     }
   };
@@ -34,7 +39,7 @@ function setResponseBody(err) {
   this.status = err.status || 500;
 
   // Sequelize errors: hide sensitive internal data
-  if (err.name && err.name.startsWith('Sequelize')) {
+  if (isSequelizeError(err)) {
     this.body = 'Internal error';
     this.status = 500;
 
@@ -44,6 +49,10 @@ function setResponseBody(err) {
       this.status = 400;
     }
   }
+}
+
+function isSequelizeError(err) {
+  return err.name && err.name.startsWith('Sequelize');
 }
 
 module.exports = getMiddleWare;

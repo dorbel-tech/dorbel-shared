@@ -29,7 +29,11 @@ describe('middleware - error-handler', function () {
     const context = {
       app: appMock,
       request: {
-        headers: { 'x-request-id': '123' }
+        headers: {
+          'x-request-id': '123',
+          'x-forwarded-for': '127.0.0.1',
+          referer: 'http://localhost'
+        }
       }
     };
     yield middleware.bind(context)(next);
@@ -45,7 +49,7 @@ describe('middleware - error-handler', function () {
   });
 
   it('should stop flow if error is thrown', function * () {
-    const error = { status: 980, message: 'bad request' };
+    const error = { status: 980, message: 'bad request', referer: 'http://localhost' };
     const next = sinon.stub().throws(error);
     const context = yield handleErrors(next);
     __.assertThat(context.body, __.is(error.message));
@@ -80,7 +84,9 @@ describe('middleware - error-handler', function () {
       app: appMock,
       request: {
         headers: {
-          'x-request-id': requestId
+          'x-request-id': requestId,
+          'x-forwarded-for': '127.0.0.1',
+          referer: 'http://localhost'
         }
       }
     };

@@ -34,10 +34,10 @@ describe('middleware - request logger', function () {
     const path = '/1/2/3';
     const statusCode = 123;
     const ip = '192.0.0.1';
-    const referrer = 'http://localhost';
+    const referer = 'http://localhost';
     const context = {
       ip,
-      referrer,
+      referer,
       method,
       url: path,
       status: statusCode,

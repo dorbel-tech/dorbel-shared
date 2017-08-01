@@ -20,7 +20,7 @@ function getMiddleWare() {
       logger.error({
         err: err,
         ip: getRequestIp(this.request),
-        referrer: this.headers.referer,
+        referer: this.request.headers.referer,
         method: this.method,
         path: this.url,
         statusCode: this.status,

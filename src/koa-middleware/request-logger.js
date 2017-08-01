@@ -20,7 +20,7 @@ function getMiddleWare() {
     yield next;
 
     const ms = new Date - start;
-    logger.info({ ip: getRequestIp(this.request), referrer: this.headers.referer, method: this.method, path: this.url, statusCode: this.status, duration: ms, requestId }, 'Response');
+    logger.info({ ip: getRequestIp(this.request), referer: this.headers.referer, method: this.method, path: this.url, statusCode: this.status, duration: ms, requestId }, 'Response');
   };
 }
 

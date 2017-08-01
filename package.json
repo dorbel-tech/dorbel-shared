@@ -24,7 +24,7 @@
     "jwt-decode": "^2.1.0",
     "lodash": "~4.16.3",
     "mock-require": "^2.0.1",
-    "newrelic": "^1.38.2",
+    "newrelic": "^2.0.1",
     "nyc": "^10.1.2",
     "redis": "^2.6.3",
     "request": "^2.81.0",

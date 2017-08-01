@@ -53,7 +53,7 @@ describe('middleware - error-handler', function () {
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
-      __.hasProperties({ error: error }),
+      __.hasProperties({ err: error }),
       __.is(error.message)
     ));
   });
@@ -67,7 +67,7 @@ describe('middleware - error-handler', function () {
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
-      __.hasProperties({ error: error }),
+      __.hasProperties({ err: error }),
       __.is(error.message)
     ));
   });
@@ -86,7 +86,7 @@ describe('middleware - error-handler', function () {
     };
 
     yield middleware.bind(context)(next);
-    __.assertThat(loggerMock.error.args[0][0], __.hasProperties({ error: error, requestId }));
+    __.assertThat(loggerMock.error.args[0][0], __.hasProperties({ err: error, requestId }));
   });
 
   it('should return 400 error and return the errors in the response body for SequelizeValidationErrors', function* () {
@@ -98,7 +98,7 @@ describe('middleware - error-handler', function () {
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
-      __.hasProperties({ error }),
+      __.hasProperties({ err: error }),
       __.is(error.message)
     ));
   });
@@ -112,7 +112,7 @@ describe('middleware - error-handler', function () {
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
     __.assertThat(newRelicMock.noticeError.calledWith(error), __.is(true));
     __.assertThat(loggerMock.error.args[0], __.contains(
-      __.hasProperties({ error }),
+      __.hasProperties({ err: error }),
       __.is(error.message)
     ));
   });

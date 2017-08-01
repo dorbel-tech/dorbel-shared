@@ -53,13 +53,12 @@ function setResponseBody(err) {
   }
 }
 
-<<<<<<< HEAD
 function getRequestIp(request) {
   return request.headers['x-forwarded-for'] || request.ip;
-=======
+}
+
 function isSequelizeError(err) {
   return err.name && err.name.startsWith('Sequelize');
->>>>>>> a7eb494abf19ecca07fa4aa5469375237295c9e8
 }
 
 module.exports = getMiddleWare;

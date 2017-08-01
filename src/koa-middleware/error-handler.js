@@ -16,9 +16,11 @@ function getMiddleWare() {
       if (newrelic) {  newrelic.noticeError(err); }
 
       const requestId = this.request.headers['x-request-id'];
-      
+
       logger.error({
-        error: err, // renamed this prop to 'error' - bunyan's serializer drops essensial data from properties named 'err' 
+        error: err, // renamed this prop to 'error' - bunyan's serializer drops essensial data from properties named 'err'
+        ip: getRequestIp(this.request),
+        referrer: this.headers.referer,
         method: this.method,
         path: this.url,
         statusCode: this.status,
@@ -44,6 +46,10 @@ function setResponseBody(err) {
       this.status = 400;
     }
   }
+}
+
+function getRequestIp(request) {
+  return request.headers['x-forwarded-for'] || request.ip;
 }
 
 module.exports = getMiddleWare;

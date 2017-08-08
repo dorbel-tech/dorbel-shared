@@ -4,9 +4,15 @@ var Validator = require('swagger-model-validator');
 const _ = require('lodash');
 var validator = new Validator();
 
+const oldFleekParamsPath = [ 'fleek', 'routeConfig', 'details', 'parameters' ];
+const newFleekParamsPath = [ 'fleek', 'context', 'parameters' ];
+const newFleekDefPath = [ 'fleek', 'swagger', 'definitions' ];
+
 function getMiddleware() {
   return function* validateSwaggerSchema(next) {
-    const parameters = _.get(this, ['fleek', 'routeConfig', 'details', 'parameters']);
+    const parameters = _.get(this, oldFleekParamsPath) || _.get(this, newFleekParamsPath);
+    const swaggerDefinitions = _.get(this, newFleekDefPath);
+
     const bodyParamDef = _.find(parameters, {
       name: 'body',
       in: 'body'
@@ -18,7 +24,7 @@ function getMiddleware() {
       if (!body) {
         error = 'missing body';
       } else {
-        error = validator.validate(this.request.body, bodyParamDef.schema);
+        error = validator.validate(this.request.body, bodyParamDef.schema, swaggerDefinitions);
       }
     }
 

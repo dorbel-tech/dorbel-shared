@@ -20,6 +20,7 @@ module.exports = {
     analytics: require('./utils/segment'),
     generic: require('./utils/generic'),
     serverRunner: require('./utils/serverRunner'),
+    serverBootstrap: require('./utils/serverBootstrap'),
     cache: require('./helpers/cache'),
     domainErrors: require('./utils/domainErrors')
   }

@@ -17,7 +17,8 @@ function normalizePublicProfile(user) {
     last_name: _.get(user, 'user_metadata.last_name') || user.family_name,
     phone: _.get(user, 'user_metadata.phone'),
     picture: user.picture,
-    tenant_profile: _.get(user, 'user_metadata.tenant_profile')
+    tenant_profile: _.get(user, 'user_metadata.tenant_profile'),
+    allow_publisher_messages: _.get(user, 'user_metadata.settings.allow_publisher_messages', true)
   };
 
   if (!publicProfile.tenant_profile) {

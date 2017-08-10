@@ -16,7 +16,7 @@ function normalizePublicProfile(user) {
     first_name: _.get(user, 'user_metadata.first_name') || user.given_name,
     last_name: _.get(user, 'user_metadata.last_name') || user.family_name,
     phone: _.get(user, 'user_metadata.phone'),
-    picture: user.picture,
+    picture: getPermanentFBPictureUrl(user) || user.picture,
     tenant_profile: _.get(user, 'user_metadata.tenant_profile'),
     allow_publisher_messages: _.get(user, 'user_metadata.settings.allow_publisher_messages', true)
   };
@@ -29,6 +29,12 @@ function normalizePublicProfile(user) {
   }
 
   return publicProfile;
+}
+
+// Created because Auth0 FB images expire after a period of time
+function getPermanentFBPictureUrl(user) {
+  const facebookData = _.find(user.identities, (identity) => identity.provider === 'facebook');
+  return facebookData ? `http://graph.facebook.com/${facebookData.user_id}/picture?type=large` : undefined;
 }
 
 function getTokenTTL(token) {

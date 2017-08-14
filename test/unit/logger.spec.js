@@ -1,7 +1,6 @@
 describe('logger', function () {
   const __ = require('hamjest');
   const bunyan = require('bunyan');
-  const mockFs = require('mock-fs');
   const mockRequire = require('mock-require');
   const sinon = require('sinon');
   const loggerModulePath = '../../src/logger';

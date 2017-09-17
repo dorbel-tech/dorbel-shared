@@ -3,8 +3,6 @@ const jwtDecode = require('jwt-decode');
 const moment = require('moment');
 const _ = require('lodash');
 
-// Make sure to sync this object in case of changing with front-gateway client object as well:
-// https://github.com/dorbel-tech/dorbel-shared/blob/master/src/utils/user/helpers.js#L6
 function normalizePublicProfile(user) {
   if (!user) {
     return;
@@ -23,9 +21,13 @@ function normalizePublicProfile(user) {
 
   if (!publicProfile.tenant_profile) {
     publicProfile.tenant_profile = {};
+
+    // Facebook connect related
     if (_.get(user, 'identities[0].provider') === 'facebook') {
       publicProfile.tenant_profile.facebook_url = user.link;
     }
+    publicProfile.tenant_profile.work_place = _.get(user, 'work[0].employer.name');
+    publicProfile.tenant_profile.position = _.get(user, 'work[0].position.name');
   }
 
   return publicProfile;

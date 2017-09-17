@@ -21,10 +21,10 @@ function normalizePublicProfile(user) {
 
   if (!publicProfile.tenant_profile) {
     publicProfile.tenant_profile = {};
-
-    // Facebook connect related
-    if (_.get(user, 'identities[0].provider') === 'facebook') {
-      publicProfile.tenant_profile.facebook_url = user.link;
+    const facebookIdentity = _.find(user.identities, { provider: 'facebook' });
+    if (facebookIdentity) {
+      publicProfile.tenant_profile.facebook_user_id = facebookIdentity.user_id;
+      publicProfile.tenant_profile.facebook_url = 'https://www.facebook.com/app_scoped_user_id/' + facebookIdentity.user_id;
     }
     publicProfile.tenant_profile.work_place = _.get(user, 'work[0].employer.name');
     publicProfile.tenant_profile.position = _.get(user, 'work[0].position.name');

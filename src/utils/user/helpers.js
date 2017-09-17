@@ -28,8 +28,8 @@ function normalizePublicProfile(user) {
       publicProfile.tenant_profile.facebook_user_id = facebookIdentity.user_id;
       publicProfile.tenant_profile.facebook_url = 'https://www.facebook.com/app_scoped_user_id/' + facebookIdentity.user_id;
     }
-    publicProfile.tenant_profile.work_place = _.get(user, 'work[0].employer.name') || '';
-    publicProfile.tenant_profile.position = _.get(user, 'work[0].position.name') || '';
+    publicProfile.tenant_profile.work_place = _.get(user, 'work[0].employer.name');
+    publicProfile.tenant_profile.position = _.get(user, 'work[0].position.name');
   }
 
   return publicProfile;

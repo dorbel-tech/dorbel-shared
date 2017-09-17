@@ -4,7 +4,7 @@ const moment = require('moment');
 const _ = require('lodash');
 
 // Make sure to sync this object in case of changing with front-gateway client object as well:
-// https://github.com/dorbel-tech/dorbel-shared/blob/master/src/utils/user/helpers.js#L6
+// https://github.com/dorbel-tech/dorbel-app/blob/master/front-gateway/src/providers/auth/auth0helper.js
 function normalizePublicProfile(user) {
   if (!user) {
     return;
@@ -28,6 +28,8 @@ function normalizePublicProfile(user) {
       publicProfile.tenant_profile.facebook_user_id = facebookIdentity.user_id;
       publicProfile.tenant_profile.facebook_url = 'https://www.facebook.com/app_scoped_user_id/' + facebookIdentity.user_id;
     }
+    publicProfile.tenant_profile.work_place = _.get(user, 'work[0].employer.name');
+    publicProfile.tenant_profile.position = _.get(user, 'work[0].position.name');
   }
 
   return publicProfile;

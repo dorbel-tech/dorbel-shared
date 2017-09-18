@@ -5,34 +5,35 @@ const _ = require('lodash');
 
 // Make sure to sync this object in case of changing with front-gateway client object as well:
 // https://github.com/dorbel-tech/dorbel-app/blob/master/front-gateway/src/providers/auth/auth0helper.js
-function normalizePublicProfile(user) {
-  if (!user) {
+function normalizePublicProfile(auth0profile) {
+  if (!auth0profile) {
     return;
   }
 
-  const publicProfile = {
-    dorbel_user_id: _.get(user, 'app_metadata.dorbel_user_id'),
-    email: _.get(user, 'user_metadata.email') || user.email,
-    first_name: _.get(user, 'user_metadata.first_name') || user.given_name,
-    last_name: _.get(user, 'user_metadata.last_name') || user.family_name,
-    phone: _.get(user, 'user_metadata.phone'),
-    picture: getPermanentFBPictureUrl(user) || user.picture,
-    tenant_profile: _.get(user, 'user_metadata.tenant_profile'),
-    allow_publisher_messages: _.get(user, 'user_metadata.settings.allow_publisher_messages', true)
+  const mappedProfile = {
+    dorbel_user_id: _.get(auth0profile, 'app_metadata.dorbel_user_id'),
+    auth0_user_id: _.get(auth0profile, 'sub'),
+    email: _.get(auth0profile, 'user_metadata.email') || auth0profile.email,
+    first_name: _.get(auth0profile, 'user_metadata.first_name') || auth0profile.given_name,
+    last_name: _.get(auth0profile, 'user_metadata.last_name') || auth0profile.family_name,
+    phone: _.get(auth0profile, 'user_metadata.phone'),
+    picture: getPermanentFBPictureUrl(auth0profile) || auth0profile.picture,
+    tenant_profile: _.get(auth0profile, 'user_metadata.tenant_profile') || {},
+    settings: _.get(auth0profile, 'user_metadata.settings') || {},
+    role: _.get(auth0profile, 'app_metadata.role'),
+    first_login: _.get(auth0profile, 'app_metadata.first_login'),
+    allow_publisher_messages: _.get(auth0profile, 'user_metadata.settings.allow_publisher_messages', true)
   };
 
-  if (!publicProfile.tenant_profile) {
-    publicProfile.tenant_profile = {};
-    const facebookIdentity = _.find(user.identities, { provider: 'facebook' });
-    if (facebookIdentity) {
-      publicProfile.tenant_profile.facebook_user_id = facebookIdentity.user_id;
-      publicProfile.tenant_profile.facebook_url = 'https://www.facebook.com/app_scoped_user_id/' + facebookIdentity.user_id;
-    }
-    publicProfile.tenant_profile.work_place = _.get(user, 'work[0].employer.name');
-    publicProfile.tenant_profile.position = _.get(user, 'work[0].position.name');
+  const facebookIdentity = _.find(auth0profile.identities, { provider: 'facebook' });
+  if (facebookIdentity) {
+    mappedProfile.tenant_profile.facebook_user_id = facebookIdentity.user_id;
+    mappedProfile.tenant_profile.facebook_url = 'https://www.facebook.com/app_scoped_user_id/' + facebookIdentity.user_id;
+    mappedProfile.tenant_profile.work_place = mappedProfile.tenant_profile.work_place || _.get(auth0profile, 'work[0].employer.name');
+    mappedProfile.tenant_profile.position = mappedProfile.tenant_profile.position || _.get(auth0profile, 'work[0].position.name');
   }
 
-  return publicProfile;
+  return mappedProfile;
 }
 
 // Created because Auth0 FB images expire after a period of time

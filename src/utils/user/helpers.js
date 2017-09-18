@@ -25,12 +25,13 @@ function normalizePublicProfile(auth0profile) {
     allow_publisher_messages: _.get(auth0profile, 'user_metadata.settings.allow_publisher_messages', true)
   };
 
+  mappedProfile.tenant_profile.work_place = mappedProfile.tenant_profile.work_place || _.get(auth0profile, 'work[0].employer.name');
+  mappedProfile.tenant_profile.position = mappedProfile.tenant_profile.position || _.get(auth0profile, 'work[0].position.name');
+
   const facebookIdentity = _.find(auth0profile.identities, { provider: 'facebook' });
   if (facebookIdentity) {
     mappedProfile.tenant_profile.facebook_user_id = facebookIdentity.user_id;
     mappedProfile.tenant_profile.facebook_url = 'https://www.facebook.com/app_scoped_user_id/' + facebookIdentity.user_id;
-    mappedProfile.tenant_profile.work_place = mappedProfile.tenant_profile.work_place || _.get(auth0profile, 'work[0].employer.name');
-    mappedProfile.tenant_profile.position = mappedProfile.tenant_profile.position || _.get(auth0profile, 'work[0].position.name');
   }
 
   return mappedProfile;

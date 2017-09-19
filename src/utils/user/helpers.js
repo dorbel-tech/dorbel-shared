@@ -38,8 +38,7 @@ function normalizePublicProfile(auth0profile) {
   if (facebookIdentity) {
     const facebookWorkPlace = 'work[0].employer.name';
     const facebookWorkPosition = 'work[0].position.name';
-    mappedProfile.tenant_profile.facebook_user_id = facebookIdentity.user_id;
-    mappedProfile.tenant_profile.facebook_url = 'https://www.facebook.com/app_scoped_user_id/' + facebookIdentity.user_id;
+    mappedProfile.tenant_profile.facebook_url = mappedProfile.tenant_profile.facebook_url || _.get(auth0profile, 'link') || _.get(linkedinIdentity.profileData, 'link');;
     mappedProfile.tenant_profile.work_place = mappedProfile.tenant_profile.work_place || _.get(auth0profile, facebookWorkPlace) || _.get(facebookIdentity.profileData, facebookWorkPlace);
     mappedProfile.tenant_profile.position = mappedProfile.tenant_profile.position || _.get(auth0profile, facebookWorkPosition) || _.get(facebookIdentity.profileData, facebookWorkPosition);
   }

@@ -29,7 +29,7 @@ function normalizePublicProfile(auth0profile) {
   if (linkedinIdentity) {
     const linkedInWorkPlace = 'positions.values[0].company.name';
     const linkedInWorkPosition = 'positions.values[0].title';
-    mappedProfile.tenant_profile.linkedin_url = linkedinIdentity.profileData.publicProfileUrl;
+    mappedProfile.tenant_profile.linkedin_url = _.get(linkedinIdentity.profileData, 'publicProfileUrl');
     mappedProfile.tenant_profile.work_place = mappedProfile.tenant_profile.work_place || _.get(auth0profile, linkedInWorkPlace) || _.get(linkedinIdentity.profileData, linkedInWorkPlace);
     mappedProfile.tenant_profile.position = mappedProfile.tenant_profile.position || _.get(auth0profile, linkedInWorkPosition) || _.get(linkedinIdentity.profileData, linkedInWorkPosition);
   }

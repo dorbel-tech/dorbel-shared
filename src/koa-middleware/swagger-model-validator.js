@@ -9,30 +9,30 @@ const newFleekParamsPath = [ 'fleek', 'context', 'parameters' ];
 const newFleekDefPath = [ 'fleek', 'swagger', 'definitions' ];
 
 function getMiddleware() {
-  return function* validateSwaggerSchema(next) {
-    const parameters = _.get(this, oldFleekParamsPath) || _.get(this, newFleekParamsPath);
-    const swaggerDefinitions = _.get(this, newFleekDefPath);
+  return async function validateSwaggerSchema(ctx, next) {
+    const parameters = _.get(ctx, oldFleekParamsPath) || _.get(ctx, newFleekParamsPath);
+    const swaggerDefinitions = _.get(ctx, newFleekDefPath);
 
     const bodyParamDef = _.find(parameters, {
       name: 'body',
       in: 'body'
     });
-    const body = _.get(this, ['request', 'body']);
+    const body = _.get(ctx, ['request', 'body']);
     let error;
 
     if (bodyParamDef && bodyParamDef.schema) {
       if (!body) {
         error = 'missing body';
       } else {
-        error = validator.validate(this.request.body, bodyParamDef.schema, swaggerDefinitions);
+        error = validator.validate(ctx.request.body, bodyParamDef.schema, swaggerDefinitions);
       }
     }
 
     if (error && !error.valid) {
-      this.status = 400;
-      this.response.body = conformToFleekError(error);
+      ctx.status = 400;
+      ctx.response.body = conformToFleekError(error);
     } else {
-      yield next;
+      await next();
     }
   };
 }

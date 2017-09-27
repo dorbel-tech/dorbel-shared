@@ -13,13 +13,13 @@ describe('middleware - swagger model validator', function () {
     required: ['title']
   };
 
-  function* callMiddleware(body) {
+  async function callMiddleware(body) {
     let context = { response: {}, request: {} };
     _.set(context, ['fleek', 'routeConfig', 'details', 'parameters'], [{ name: 'body', in: 'body', schema }]);
     context.request.body = body;
 
-    const next = (cb) => { context.validated = true; cb(); };
-    yield middleware.bind(context)(next);
+    const next = () => { context.validated = true; };
+    await middleware(context, next);
     return context;
   }
 
@@ -31,24 +31,24 @@ describe('middleware - swagger model validator', function () {
     }));
   }
 
-  it('should clear valid model', function* () {
-    let context = yield callMiddleware({ title: 'is enough' });
+  it('should clear valid model', async function () {
+    let context = await callMiddleware({ title: 'is enough' });
     __.assertThat(context.validated, __.equalTo(true));
   });
 
-  it('should return 400 when model is not valid', function* () {
-    let context = yield callMiddleware({});
+  it('should return 400 when model is not valid', async function () {
+    let context = await callMiddleware({});
     __.assertThat(context.status, __.equalTo(400));
   });
 
-  it('should return error message when value is missing', function* () {
-    let context = yield callMiddleware({ shoes: 'are cool' });
+  it('should return error message when value is missing', async function () {
+    let context = await callMiddleware({ shoes: 'are cool' });
     let body = context.response.body;
     assertErrorMessage(body, __.hasItem('title is a required field'));
   });
 
-  it('should return error message when wrong data type', function* () {
-    let context = yield callMiddleware({ title: 7 });
+  it('should return error message when wrong data type', async function () {
+    let context = await callMiddleware({ title: 7 });
     let body = context.response.body;
     assertErrorMessage(body, __.hasItem(__.containsString('not a type of string')));
   });

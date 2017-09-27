@@ -7,20 +7,20 @@ const REQUEST_ID_HEADER = 'x-request-id';
 function getMiddleWare() {
   const logger = require('../logger').getLogger(module);
 
-  return function* (next) {
+  return async function (ctx, next) {
     // Don't report logs for health check requests.
-    if (!this.url || this.url.indexOf('/health') > -1) {
-      return yield next;
+    if (!ctx.url || ctx.url.indexOf('/health') > -1) {
+      await next();
     }
 
-    const requestId = getOrSetRequestId(this.headers);
+    const requestId = getOrSetRequestId(ctx.headers);
     const start = new Date;
-    logger.trace({ method: this.method, path: this.url, requestId }, 'Request');
+    logger.trace({ method: ctx.method, path: ctx.url, requestId }, 'Request');
 
-    yield next;
+    await next();
 
     const ms = new Date - start;
-    logger.info({ ip: getRequestIp(this.request), referer: this.headers.referer, method: this.method, path: this.url, statusCode: this.status, duration: ms, requestId }, 'Response');
+    logger.info({ ip: getRequestIp(ctx.request), referer: ctx.headers.referer, method: ctx.method, path: ctx.url, statusCode: ctx.status, duration: ms, requestId }, 'Response');
   };
 }
 

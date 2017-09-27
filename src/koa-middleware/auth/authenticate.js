@@ -1,8 +1,8 @@
 'use strict';
 
-function* authenticate(next) {
+async function authenticate(ctx, next) {
   let user;
-  const profileHeader = this.request.headers['x-user-profile'];
+  const profileHeader = ctx.request.headers['x-user-profile'];
 
   try {
     user = profileHeader && JSON.parse(profileHeader);
@@ -11,11 +11,11 @@ function* authenticate(next) {
   }
 
   if (user && user.id) {
-    this.request.user = user;
-    yield next;
+    ctx.request.user = user;
+    await next();
   } else {
-    this.response.status = 401;
-    this.response.body = 'User is not authorized! Please login again.';
+    ctx.response.status = 401;
+    ctx.response.body = 'User is not authorized! Please login again.';
   }
 }
 

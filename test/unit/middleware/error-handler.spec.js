@@ -25,7 +25,7 @@ describe('middleware - error-handler', function () {
 
   after(() => mockRequire.stopAll());
 
-  function * handleErrors(next) {
+  async function handleErrors(next) {
     const context = {
       app: appMock,
       request: {
@@ -36,22 +36,22 @@ describe('middleware - error-handler', function () {
         }
       }
     };
-    yield middleware.bind(context)(next);
+    await middleware(context, next);
     return context;
   }
 
-  it('should continue flow if no error is thrown', function * () {
-    const next = sinon.spy(cb => cb());
-    const context = yield handleErrors(next);
+  it('should continue flow if no error is thrown', async function () {
+    const next = sinon.spy();
+    const context = await handleErrors(next);
     __.assertThat(next.called, __.is(true));
     __.assertThat(context.body, __.is(__.undefined()));
     __.assertThat(context.status, __.is(__.undefined()));
   });
 
-  it('should stop flow if error is thrown', function * () {
+  it('should stop flow if error is thrown', async function () {
     const error = { status: 980, message: 'bad request', referer: 'http://localhost' };
     const next = sinon.stub().throws(error);
-    const context = yield handleErrors(next);
+    const context = await handleErrors(next);
     __.assertThat(context.body, __.is(error.message));
     __.assertThat(context.status, __.is(error.status));
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
@@ -62,10 +62,10 @@ describe('middleware - error-handler', function () {
     ));
   });
 
-  it('should stop flow if no stack and status code', function * () {
+  it('should stop flow if no stack and status code', async function () {
     const error = { message: 'general error' };
     const next = sinon.stub().throws(error);
-    const context = yield handleErrors(next);
+    const context = await handleErrors(next);
     __.assertThat(context.body, __.is(error.message));
     __.assertThat(context.status, __.is(500));
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
@@ -76,7 +76,7 @@ describe('middleware - error-handler', function () {
     ));
   });
 
-  it('should log request id', function * () {
+  it('should log request id', async function () {
     const error = { message: 'general error' };
     const next = sinon.stub().throws(error);
     const requestId = '123-456-789';
@@ -91,14 +91,14 @@ describe('middleware - error-handler', function () {
       }
     };
 
-    yield middleware.bind(context)(next);
+    await middleware(context, next);
     __.assertThat(loggerMock.error.args[0][0], __.hasProperties({ err: error, requestId }));
   });
 
-  it('should return 400 error and return the errors in the response body for SequelizeValidationErrors', function* () {
+  it('should return 400 error and return the errors in the response body for SequelizeValidationErrors', async function () {
     const error = { message: 'general error', name: 'SequelizeValidationError', errors: ['mockField is required'] };
     const next = sinon.stub().throws(error);
-    const context = yield handleErrors(next);
+    const context = await handleErrors(next);
     __.assertThat(context.body, __.is(error.errors));
     __.assertThat(context.status, __.is(400));
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));
@@ -109,10 +109,10 @@ describe('middleware - error-handler', function () {
     ));
   });
 
-  it('should return 500 error status and \'Internal error\' in the response body for general Sequelize errors', function* () {
+  it('should return 500 error status and \'Internal error\' in the response body for general Sequelize errors', async function () {
     const error = { message: 'general error', name: 'SequelizeSomethingSomething', errors: ['mockField is required'] };
     const next = sinon.stub().throws(error);
-    const context = yield handleErrors(next);
+    const context = await handleErrors(next);
     __.assertThat(context.body, __.is('Internal error'));
     __.assertThat(context.status, __.is(500));
     __.assertThat(appMock.emit.calledWith('error', error, context), __.is(true));

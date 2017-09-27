@@ -1,13 +1,13 @@
 'use strict';
 
-function* optionalAuthenticate(next) {
-  const xUserProfile = this.request.headers['x-user-profile'];
+async function optionalAuthenticate(ctx, next) {
+  const xUserProfile = ctx.request.headers['x-user-profile'];
   
   if (xUserProfile) {
     try {
       const user = JSON.parse(xUserProfile);
       if (user && user.id) {
-        this.request.user = user;    
+        ctx.request.user = user;    
       }
     }
     catch(ex) {
@@ -15,7 +15,7 @@ function* optionalAuthenticate(next) {
     }
   }
   
-  yield next;
+  await next();
 }
 
 module.exports = optionalAuthenticate;

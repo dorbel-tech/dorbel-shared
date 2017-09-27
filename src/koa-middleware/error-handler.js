@@ -6,24 +6,24 @@ function getMiddleWare() {
   const newrelic = require('../utils/newrelic').init();
   const logger = require('../logger').getLogger(module);
 
-  return function* (next) {
+  return async function (ctx, next) {
     try {
-      yield next;
+      await next();
     } catch (err) {
-      setResponseBody.bind(this)(err);
+      setResponseBody.bind(ctx)(err);
 
-      this.app.emit('error', err, this);
+      ctx.app.emit('error', err, ctx);
       if (newrelic) {  newrelic.noticeError(err); }
 
-      const requestId = this.request.headers['x-request-id'];
+      const requestId = ctx.request.headers['x-request-id'];
 
       logger.error({
         err: err,
-        ip: getRequestIp(this.request),
-        referer: this.request.headers.referer,
-        method: this.method,
-        path: this.url,
-        statusCode: this.status,
+        ip: getRequestIp(ctx.request),
+        referer: ctx.request.headers.referer,
+        method: ctx.method,
+        path: ctx.url,
+        statusCode: ctx.status,
         requestId,
         sequelizeData: isSequelizeError(err) ? {
           errors: err.errors,

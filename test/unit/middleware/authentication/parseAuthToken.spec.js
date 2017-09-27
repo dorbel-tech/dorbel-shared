@@ -6,9 +6,9 @@ const userHeaderKey = 'x-user-profile';
 
 describe('middleware - parse auth token', function () {
   let parseAuthToken;
-  const next = sinon.spy(cb => cb());
+  const next = sinon.spy();
 
-  before(function() {
+  before(function () {
     this.authenticationClientMock = {};
     this.decodedTokenMock = {};
     this.cacheMock = {
@@ -19,7 +19,7 @@ describe('middleware - parse auth token', function () {
     this.auth0mock = {
       AuthenticationClient: sinon.stub().returns(this.authenticationClientMock),
       ManagementClient: sinon.stub().returns(this.managmentClientMock)
-    };    
+    };
     this.currentUnixTime = 10;
     this.momentMock = {
       unix: () => this.currentUnixTime
@@ -44,7 +44,7 @@ describe('middleware - parse auth token', function () {
     delete process.env.AUTH0_FRONT_CLIENT_ID;
   });
 
-  function* parseAndCompare(token, expected) {
+  async function parseAndCompare(token, expected) {
     const context = {
       request: {
         headers: {
@@ -54,19 +54,19 @@ describe('middleware - parse auth token', function () {
     };
 
     next.reset();
-    yield parseAuthToken.bind(context)(next);
+    await parseAuthToken(context, next);
     __.assertThat(context.request.headers[userHeaderKey],
       __.equalTo(JSON.stringify(expected))
     );
   }
 
-  it('should return token value from cache', function* () {
+  it('should return token value from cache', async function () {
     const cachedValue = {};
     this.cacheMock.getKey.resolves(JSON.stringify(cachedValue));
-    yield parseAndCompare('Bearer 123', cachedValue);
+    await parseAndCompare('Bearer 123', cachedValue);
   });
 
-  it('should return value from auth0 if not in cache', function* () {
+  it('should return value from auth0 if not in cache', async function () {
     const auth0Value = {};
 
     this.cacheMock.getKey.resolves(false);
@@ -74,10 +74,10 @@ describe('middleware - parse auth token', function () {
       getInfo: (token, callback) => callback(null, auth0Value)
     };
 
-    yield parseAndCompare('Bearer 123', auth0Value);
+    await parseAndCompare('Bearer 123', auth0Value);
   });
 
-  it('should set cache with token key with response from auth0', function* () {
+  it('should set cache with token key with response from auth0', async function () {
     const tokenExpirationTime = 15;
     const tokenTTL = tokenExpirationTime - this.currentUnixTime;
     const auth0Value = {};
@@ -90,14 +90,14 @@ describe('middleware - parse auth token', function () {
       getInfo: (token, callback) => callback(null, auth0Value)
     };
 
-    yield parseAndCompare('Bearer ' + token, auth0Value);
+    await parseAndCompare('Bearer ' + token, auth0Value);
 
     __.assertThat(this.cacheMock.setKey.args[0],
       __.contains(token, JSON.stringify(auth0Value), tokenTTL)
     );
   });
 
-  it('should set cache with hash and user id', function* () {
+  it('should set cache with hash and user id', async function () {
     const dorbel_user_id = 'Richard Nixon';
     const auth0Value = { dorbel_user_id };
     const token = '123';
@@ -108,7 +108,7 @@ describe('middleware - parse auth token', function () {
       getInfo: (token, callback) => callback(null, auth0Value)
     };
 
-    yield parseAndCompare('Bearer ' + token, { id: dorbel_user_id });
+    await parseAndCompare('Bearer ' + token, { id: dorbel_user_id });
 
     __.assertThat(this.cacheMock.setHashKey.args[0],
       __.contains('auth0_users_by_uuid', dorbel_user_id, JSON.stringify(auth0Value))
@@ -116,7 +116,7 @@ describe('middleware - parse auth token', function () {
 
   });
 
-  it('should clear user-profile header', function* () {
+  it('should clear user-profile header', async function () {
     const context = {
       request: {
         headers: {
@@ -125,12 +125,12 @@ describe('middleware - parse auth token', function () {
       }
     };
 
-    const next = cb => cb();
-    yield parseAuthToken.bind(context)(next);
+    const next = () => { };
+    await parseAuthToken(context, next);
     __.assertThat(context.request.headers[userHeaderKey], __.is(__.undefined()));
   });
 
-  it('should not call cache or auth0 if token is already expired', function* () {
+  it('should not call cache or auth0 if token is already expired', async function () {
     const tokenExpirationTime = this.currentUnixTime - 5; // expired before now
 
     this.cacheMock.getKey.reset();
@@ -139,7 +139,7 @@ describe('middleware - parse auth token', function () {
       getInfo: sinon.spy()
     };
 
-    yield parseAndCompare('Bearer 123', undefined);
+    await parseAndCompare('Bearer 123', undefined);
     __.assertThat(this.cacheMock.getKey.called, __.is(false));
     __.assertThat(this.authenticationClientMock.tokens.getInfo.called, __.is(false));
   });

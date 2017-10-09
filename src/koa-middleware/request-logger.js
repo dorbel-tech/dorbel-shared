@@ -15,7 +15,7 @@ function getMiddleWare() {
 
     const requestId = getOrSetRequestId(this.headers);
     const start = new Date;
-    logger.trace({ method: this.method, path: this.url, requestId }, 'Request');
+    logger.debug({ method: this.method, path: this.url, requestId }, 'Request');
 
     yield next;
 

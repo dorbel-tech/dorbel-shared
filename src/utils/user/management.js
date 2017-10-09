@@ -14,14 +14,14 @@ const helpers = require('./helpers');
 
 // Update user details by user uuid using Management API or Cache.
 function updateUserDetails(user_uuid, userData) {
-  logger.debug({ user_uuid, userData }, 'Starting updateUserDetails');
+  logger.debug({ user_uuid, userData }, 'Starting auth0 updateUserDetails');
 
   if (!user_uuid) {
-    throw new Error('Cant update user details. Supplied user id was undefined!');
+    throw new Error('Cant update auth0 user details. Supplied user id was undefined!');
   }
 
   if (!userData || _.isEmpty(userData.user_metadata)) {
-    throw new Error('Cant update user details. Supplied user metadata was empty!');
+    throw new Error('Cant update auth0 user details. Supplied user metadata was empty!');
   }
 
   return getUserDetails(user_uuid)
@@ -40,7 +40,7 @@ function updateUserDetails(user_uuid, userData) {
               });
           });
       } else {
-        logger.error({ user_uuid }, 'Failed to update user details as user was not found');
+        logger.error({ user_uuid }, 'Failed to update auth0 user details as user was not found');
         return user;
       }
     });
@@ -48,15 +48,16 @@ function updateUserDetails(user_uuid, userData) {
 
 // Get user details by user uuid from Management API or Cache.
 function getUserDetails(user_uuid) {
-  logger.debug({ user_uuid }, 'Starting getUserDetails');
+  logger.debug({ user_uuid }, 'Starting auth0 getUserDetails');
 
   if (!user_uuid) {
-    throw new Error('Cant get user details. Supplied user_uuid was undefined!');
+    throw new Error('Cant get auth0 user details. Supplied user_uuid was undefined!');
   }
 
   return cache.getHashKey(userCacheKeyName, user_uuid)
   .then(result => {
     if (result) {
+      logger.debug({ user_uuid }, 'Got auth0 user profile from cache');
       return JSON.parse(result);
     }
 
@@ -65,8 +66,9 @@ function getUserDetails(user_uuid) {
     })
     .then(user => {
       if (user) {
+        logger.debug({ user_uuid }, 'Set auth0 user profile into cache');
         cache.setHashKey(userCacheKeyName, user_uuid, JSON.stringify(user));
-        logger.debug({ user_uuid }, 'Got user info from Management API by uuid.');
+        logger.debug({ user_uuid }, 'Got user info from auth0 Management API by uuid.');
         return user;
       }
 
@@ -83,20 +85,20 @@ function getUserDetailsFromAuth0(query) {
   return getApiTokenFromAuth0()
   .then(token => { return new ManagementClient({ domain: process.env.AUTH0_DOMAIN, token }); })
   .then(auth0Client => {
-    logger.trace(query, 'Starting auth0.getUsers');
+    logger.debug(query, 'Starting auth0.getUsers');
     return auth0Client.getUsers({
       fields: 'user_id,name,email,user_metadata,app_metadata,picture,link,identities,given_name,family_name', // User details field names to get from API.
       q
     });
   })
   .then(user => {
-    logger.trace({ query, user }, 'Got user details from auth0.getUsers');
+    logger.debug({ query, user }, 'Got user details from auth0.getUsers');
     return user && user[0]; // Removing hierarchy as got only one user.
   });
 }
 
 function getApiTokenFromAuth0() {
-  logger.debug('Starting getApiTokenFromAuth0');
+  logger.debug('Starting auth0 getApiTokenFromAuth0');
   if (!process.env.AUTH0_DOMAIN) { throw new Error('You need to define AUTH0_DOMAIN environment variable!'); }
   if (!process.env.AUTH0_API_CLIENT_ID) { throw new Error('You need to define AUTH0_API_CLIENT_ID environment variable!'); }
   if (!process.env.AUTH0_API_CLIENT_SECRET) { throw new Error('You need to define AUTH0_API_CLIENT_SECRET environment variable!'); }
@@ -117,12 +119,14 @@ function getApiTokenFromAuth0() {
   return cache.getKey(cacheKeyName)
     .then(result => {
       if (result) {
+        logger.debug(result, 'Got auth0 API Token from cache');
         return result;
       } else {
         return request(options)
           .then(result => {
-            logger.debug(result, 'Got API Token from auth0 v2 API');
+            logger.debug(result, 'Got auth0 API Token from v2 API');
             cache.setKey(cacheKeyName, result.access_token, result.expires_in - TWO_HOURS);
+            logger.debug(result, 'Set auth0 API Token to cache');
             return result.access_token;
           });
       }
@@ -139,11 +143,13 @@ function* getProfileFromIdToken(idToken) {
   // Try to get user profile from cache
   const cacheResult = yield cache.getKey(idToken);
   if (cacheResult) {
+    logger.debug({ idToken }, 'Got auth0 user profile from cache using idToken');
     return JSON.parse(cacheResult);
   }
 
   // If not in cache get user profile from auth0
   const profile = yield getProfileFromAuth0(idToken);
+  logger.debug({ idToken }, 'Got auth0 user profile from auth0 using idToken');
 
   cache.setKey(idToken, JSON.stringify(profile), ttl);
   let dorbelUserId = profile.dorbel_user_id;
@@ -168,12 +174,12 @@ function getProfileFromAuth0(idToken) {
 }
 
 function getPublicProfile(user_uuid) {
-  if (!user_uuid) { throw new Error('Cant get public user profile. Supplied user_uuid was undefined!'); }
+  if (!user_uuid) { throw new Error('Cant get auth0 public user profile. Supplied user_uuid was undefined!'); }
   return getUserDetails(user_uuid).then(helpers.normalizePublicProfile);
 }
 
 function getPublicProfileByEmail(email) {
-  if (!email) { throw new Error('Cant get user details. Supplied email was undefined!'); }
+  if (!email) { throw new Error('Cant get auth0 user details. Supplied email was undefined!'); }
   return getUserDetailsFromAuth0({ email }).then(helpers.normalizePublicProfile);
 }
 

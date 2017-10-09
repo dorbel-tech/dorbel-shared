@@ -10,7 +10,7 @@ describe('middleware - request logger', function () {
   before(function () {
     this.sinon = sinon.sandbox.create();
     this.loggerMock = {
-      trace: this.sinon.spy(),
+      debug: this.sinon.spy(),
       info: this.sinon.spy()
     };
     mockRequire('../../src/logger', { getLogger: () => this.loggerMock });
@@ -46,7 +46,7 @@ describe('middleware - request logger', function () {
 
     yield logRequest(context);
 
-    __.assertThat(this.loggerMock.trace.args[0], __.contains(
+    __.assertThat(this.loggerMock.debug.args[0], __.contains(
       __.hasProperties({ method, path }),
       'Request'
     ));
@@ -58,7 +58,7 @@ describe('middleware - request logger', function () {
 
   it('should add request ID to logs', function * () {
     yield logRequest({ url: '123', request: { headers: {} }});
-    const tracedRequestId = this.loggerMock.trace.args[0][0].requestId;
+    const tracedRequestId = this.loggerMock.debug.args[0][0].requestId;
     __.assertThat(tracedRequestId, __.is(__.matchesPattern(uuidRegex)));
     __.assertThat(this.loggerMock.info.args[0][0].requestId, __.is(tracedRequestId));
   });
@@ -66,13 +66,13 @@ describe('middleware - request logger', function () {
   it('should log existing request ID when it is supplied', function * () {
     const requestId = 'abcdef-gfgaf23-1rw';
     yield logRequest({ url: '123', request: { headers: { 'x-request-id': requestId } }});
-    __.assertThat(this.loggerMock.trace.args[0][0].requestId, __.is(requestId));
+    __.assertThat(this.loggerMock.debug.args[0][0].requestId, __.is(requestId));
     __.assertThat(this.loggerMock.info.args[0][0].requestId, __.is(requestId));
   });
 
   it('should not log health calls', function * () {
     yield logRequest({ url: '/health', request: { headers: {} }});
-    __.assertThat(this.loggerMock.trace.called, __.is(false));
+    __.assertThat(this.loggerMock.debug.called, __.is(false));
     __.assertThat(this.loggerMock.info.called, __.is(false));
   });
 });

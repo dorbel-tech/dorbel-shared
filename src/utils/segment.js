@@ -18,12 +18,12 @@ function track(userId, eventName, properties) {
     event: eventName,
     properties
   });
-  logger.trace({userId, eventName, properties}, 'tracking event to segment io');
+  logger.debug({userId, eventName, properties}, 'tracking event to segment io');
 }
 
 function identify(user) {
   analytics.identify(mapAuth0UserToSegmentUser(user));
-  logger.trace({user}, 'identifing user to segment io');
+  logger.debug({user}, 'identifing user to segment io');
 }
 
 function mapAuth0UserToSegmentUser(auth0user) {
